@@ -2,8 +2,6 @@ import numpy as np
 from scipy import stats
 
 def fit(X, y):
-    cs = np.unique(y)
-
     def theta(c):
         X_c = X[y == c]
         prior = 1.0 * sum(y == c) / len(y)
@@ -11,7 +9,7 @@ def fit(X, y):
         Sigma = np.cov(X_c, rowvar = False)
         return c, prior, mean, Sigma
 
-    return [theta(c) for c in cs]
+    return [theta(c) for c in np.unique(y)]
 
 def predict(model, X):
     p = []
