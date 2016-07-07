@@ -6,7 +6,7 @@ def fit(X, y):
     InvSigma = inv(Sigma)
 
     def theta(c):
-        prior = 1.0 * sum(y == c) / len(y)
+        prior = np.mean(y == c)
         mean = np.mean(X[y == c], axis = 0)
         gamma = -mean.dot(InvSigma).dot(mean) / 2.0 + np.log(prior)
         Beta = InvSigma.dot(mean)

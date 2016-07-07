@@ -4,7 +4,7 @@ from scipy import stats
 def fit(X, y):
     def theta(c):
         X_c = X[y == c]
-        prior = 1.0 * sum(y == c) / len(y)
+        prior = np.mean(y == c)
         mean = np.mean(X_c, axis = 0)
         Sigma = np.cov(X_c, rowvar = False)
         return c, prior, mean, Sigma
