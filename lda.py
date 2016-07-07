@@ -23,3 +23,5 @@ def predict(model, X):
         cs.append(c)
         p.append(X.dot(Beta) + gamma)
     return np.array([cs[i] for i in np.argmax(p, axis = 0)])
+
+# from sklearn lda
