@@ -7,4 +7,4 @@ def get():
     X = data.ix[:, 1 : 2].values
     y = data.ix[:, 0].values
     y = (y == 1) * y
-    return X, y    
+    return X * 1.0, y * 1.0    
