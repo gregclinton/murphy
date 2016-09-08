@@ -22,14 +22,3 @@ def predict(model, X):
     w, x_0 = model
     sigmoid = 1.0 / (1 + np.exp(-w.dot((X - x_0).T)))
     return sigmoid > 0.5
-
-from scipy.optimize import minimize
-from sigmoid import sigmoid
-
-def fit(X, y):
-    w = np.ones(X.shape[1])
-    return minimize(NLL, w, jac = jac, hess = hess, method = 'Newton-CG').x
-
-def predict(X, model):
-    w = model
-    return (sigmoid(x.dot(w)) > 0.5) * 1)
