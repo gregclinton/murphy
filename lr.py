@@ -3,19 +3,6 @@ import math
 from numpy.linalg import inv
 from sigmoid import sigmoid
 
-
-from sklearn.linear_model import LogisticRegression
-
-def fit(X, y):
-    clf = LogisticRegression()
-    clf.fit(X, y)
-    return clf
-
-def predict(model, X):
-    clf = model
-    return clf.predict(X)
-
-
 def fit(X, y):
     heads = y == 0
     prior_0 = np.mean(heads)
