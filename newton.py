@@ -4,7 +4,7 @@ from scipy.optimize import minimize
 from numpy.linalg import inv, norm
 
 class Converge:
-    def __init__(self, f, theta, epsilon = 0.0000001):
+    def __init__(self, f, theta, epsilon):
         self.f = f
         self.epsilon = epsilon
         self.mark = f(theta)
@@ -15,8 +15,8 @@ class Converge:
         self.mark = mark
         return res
     
-def newton(theta, f, g, H):
-    converge = Converge(f, theta)
+def newton(theta, f, g, H, epsilon = 0.0000001):
+    converge = Converge(f, theta, epsilon)
     
     for _ in range(100):
         gk = g(theta)
