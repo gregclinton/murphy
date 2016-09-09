@@ -1,14 +1,29 @@
 import numpy as np
 from sigmoid import sigmoid
 from scipy.optimize import minimize
-from numpy.linalg import inv
+from numpy.linalg import inv, norm
 
+class Converge:
+    def __init__(self, f, theta, epsilon = 0.0000001):
+        self.f = f
+        self.epsilon = epsilon
+        self.mark = f(theta)
+                
+    def done(self, theta):
+        mark = self.f(theta)
+        res = abs(mark - self.mark) < self.epsilon
+        self.mark = mark
+        return res
+    
 def newton(theta, f, g, H):
-    for _ in range(2):
+    converge = Converge(f, theta)
+    
+    for _ in range(100):
         gk = g(theta)
         eta = minimize(lambda eta: f(theta - eta * gk), 1).x
-        theta -= eta * (inv(H(theta)).dot(gk))
-    
+        theta -= eta * inv(H(theta)).dot(gk)
+        if converge.done(theta):
+            break
     return theta
 
 def fit(X, y):   
