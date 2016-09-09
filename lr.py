@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from numpy.linalg import inv
+from sigmoid import sigmoid
 
 def fit(X, y):
     heads = y == 0
@@ -20,5 +21,4 @@ def fit(X, y):
 
 def predict(model, X):
     w, x_0 = model
-    sigmoid = 1.0 / (1 + np.exp(-w.dot((X - x_0).T)))
-    return sigmoid > 0.5
+    return 1 * (sigmoid(w.dot((X - x_0).T)) > 0.5)
