@@ -1,6 +1,5 @@
 import scipy.optimize as opt
 from converge import Converge
-from numpy.linalg import inv
 
 def minimize(theta, f, g, H, epsilon = 0.0000001, maxsteps = 100):
     converge = Converge(f, epsilon, maxsteps)
