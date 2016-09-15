@@ -34,10 +34,10 @@ class Classifier:
 
             return log_likelihood
         
-        self.clf = generative.Classifier(get_model, get_log_likelihood)
+        self.generative = generative.Classifier(get_model, get_log_likelihood)
         
     def fit(self, X, y):
-        return self.clf.fit(X, y)
+        return self.generative.fit(X, y)
 
     def predict(self, X):
-        return self.clf.predict(X)
+        return self.generative.predict(X)
