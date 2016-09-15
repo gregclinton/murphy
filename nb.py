@@ -2,6 +2,7 @@ import numpy as np
 
 class Classifier:
     '''
+    naive bayes classifier
     murphy pp. 84 to 89
     binary features only (this implementation)
     '''    
