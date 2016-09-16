@@ -4,33 +4,27 @@ import generative
 class Classifier(generative.Classifier):
     '''
     naive bayes classifier (features treated as independent given theta)
-    a generative classifier
     murphy pp. 84 to 89
     binary features only (this implementation)
-    ccd is class conditional density
-    '''
-    
-    def log_ccd(theta):
-        pass
-        
+    '''        
     def __init__(self):
-        def get_model(X, y, N, D, C):
-            thetas = np.empty((C, D))
+        def get_theta(X, y, N, D, C):
+            theta = np.empty((C, D))
             pseudocount = 1
 
             for c in range(C):
                 X_c = X[y == c]
                 Non = np.sum(X_c == 1, axis = 0)
                 Noff = np.sum(X_c == 0, axis = 0)
-                thetas[c, :] = 1.0 * (Non + pseudocount) / (Non + Noff + 2 * pseudocount)
+                theta[c, :] = 1.0 * (Non + pseudocount) / (Non + Noff + 2 * pseudocount)
 
-            return thetas
+            return theta
 
-        def get_log_likelihood(X, N, D, C, thetas):
+        def get_log_likelihood(X, N, D, C, theta):
             eps = np.spacing(0)
             not_X = 1 - X
-            log_theta = np.log(thetas + eps)
-            log_not_theta = np.log(1 - thetas + eps)        
+            log_theta = np.log(theta + eps)
+            log_not_theta = np.log(1 - theta + eps)        
             log_likelihood = np.empty((N, C))
 
             for c in range(C):
@@ -40,4 +34,4 @@ class Classifier(generative.Classifier):
 
             return log_likelihood
         
-        generative.Classifier.__init__(self, get_model, get_log_likelihood)
+        generative.Classifier.__init__(self, get_theta, get_log_likelihood)
