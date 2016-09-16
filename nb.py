@@ -27,19 +27,13 @@ class Bernoulli(generative.Classifier):
             return theta
 
         def get_log_likelihood(X, N, D, C, theta):
-            eps = np.spacing(0)
-            not_X = 1 - X
-            log_theta = np.log(theta + eps)
-            log_not_theta = np.log(1 - theta + eps)        
             log_likelihood = np.empty((N, C))
-
+            
             for c in range(C):
-                L1 = X * log_theta[c, :]
-                L0 = not_X * log_not_theta[c, :]
-                log_likelihood[:, c] = np.sum(L1 + L0, axis = 1)
+                log_likelihood[:, c] = sum([stats.bernoulli.logpmf(X[:, j], theta[c, j]) for j in range(D)])
 
             return log_likelihood
-        
+                
         generative.Classifier.__init__(self, get_theta, get_log_likelihood)
 
 
