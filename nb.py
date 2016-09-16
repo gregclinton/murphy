@@ -11,7 +11,7 @@ murphy pp. 84 to 89
 class Bernoulli(generative.Classifier):
     '''
     binary features only
-    or use from sklearn.naive_bayes import BernoulliNB
+    or use BernoulliNB from sklearn.naive_bayes
     '''        
     def __init__(self):
         def get_theta(X, y, N, D, C):
@@ -35,7 +35,7 @@ class Bernoulli(generative.Classifier):
 
 class Gaussian(generative.Classifier):
     '''
-    or use from sklearn.naive_bayes import GaussianNB
+    or use GaussianNB from sklearn.naive_bayes
     '''        
     def __init__(self):
         def get_theta(X, y, N, D, C):

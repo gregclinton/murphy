@@ -6,7 +6,7 @@ class Classifier(generative.Classifier):
     '''
     linear discriminant analysis classifier
     murphy p. 105
-    or from sklearn import lda
+    or use LDA from sklearn.lda
     '''        
     def __init__(self):
         def get_theta(X, y, N, D, C):
