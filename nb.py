@@ -6,7 +6,7 @@ import generative
 '''
 naive bayes classifiers (features treated as independent given theta)
 murphy pp. 84 to 89
-'''        
+'''
 
 class Bernoulli(generative.Classifier):
     '''
@@ -29,7 +29,7 @@ class Bernoulli(generative.Classifier):
         def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             for c in range(C):
                 log_likelihood[:, c] = sum([stats.bernoulli.logpmf(X[:, j], theta[c, j]) for j in range(D)])
-                
+
         generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
 
 
@@ -46,13 +46,13 @@ class Gaussian(generative.Classifier):
                 X_c = X[y == c]
                 mu.append(np.mean(X_c, axis = 0))
                 sigma.append(np.std(X_c, axis = 0))
-        
+
             return mu, sigma
 
         def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             mu, sigma = theta
 
             for c in range(C):
-                log_likelihood[:, c] = stats.multivariate_normal.logpdf(X, mu[c], sigma[c])
-        
+                log_likelihood[:, c] = sum([stats.norm.logpdf(X[:, j], mu[c][j], sigma[c][j]) for j in range(D)])
+
         generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
