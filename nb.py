@@ -3,10 +3,16 @@ import generative
 
 class Classifier(generative.Classifier):
     '''
-    naive bayes classifier
+    naive bayes classifier (features treated as independent given theta)
+    a generative classifier
     murphy pp. 84 to 89
     binary features only (this implementation)
-    '''    
+    ccd is class conditional density
+    '''
+    
+    def log_ccd(theta):
+        pass
+        
     def __init__(self):
         def get_model(X, y, N, D, C):
             thetas = np.empty((C, D))
