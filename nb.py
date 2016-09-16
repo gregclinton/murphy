@@ -1,7 +1,7 @@
 import numpy as np
 import generative
 
-class Classifier:
+class Classifier(generative.Classifier):
     '''
     naive bayes classifier
     murphy pp. 84 to 89
@@ -34,10 +34,4 @@ class Classifier:
 
             return log_likelihood
         
-        self.generative = generative.Classifier(get_model, get_log_likelihood)
-        
-    def fit(self, X, y):
-        return self.generative.fit(X, y)
-
-    def predict(self, X):
-        return self.generative.predict(X)
+        generative.Classifier.__init__(self, get_model, get_log_likelihood)
