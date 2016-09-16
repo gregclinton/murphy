@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.linalg import inv
+from scipy import stats
 import generative
 
 '''
@@ -63,7 +64,7 @@ class Gaussian(generative.Classifier):
             log_likelihood = np.empty((N, C))
 
             for c in range(C):
-                log_likelihood[:, c] = X.dot(Betas[i]) + gammas[i]
+                log_likelihood[:, c] = stats.multivariate_normal.logpdf(X, mu[c], sigma[c])
             return log_likelihood
         
         generative.Classifier.__init__(self, get_theta, get_log_likelihood)        
