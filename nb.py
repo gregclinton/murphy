@@ -25,11 +25,14 @@ class Bernoulli(generative.Classifier):
                 theta[c, :] = 1.0 * (Non + pseudocount) / (Non + Noff + 2 * pseudocount)
 
             return theta
+        
+        def logp(feature, theta):
+            p = theta
+            return stats.bernoulli.logpmf(feature, p)
 
         def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             for c in range(C):
-                p = theta[c]
-                log_likelihood[:, c] = sum([stats.bernoulli.logpmf(X[:, j], p[j]) for j in range(D)])
+                log_likelihood[:, c] = sum([logp(X[:, j], theta[c][j]) for j in range(D)])
 
         generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
 
@@ -50,10 +53,12 @@ class Gaussian(generative.Classifier):
 
             return theta
 
+        def logp(feature, theta):
+            mu, sigma = theta
+            return stats.norm.logpdf(feature, mu, sigma)
+
         def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             for c in range(C):
-                for j in range(D):
-                    mu, sigma = theta[c][j]
-                    log_likelihood[:, c] += stats.norm.logpdf(X[:, j], mu, sigma)
+                log_likelihood[:, c] = sum([logp(X[:, j], theta[c][j]) for j in range(D)])
 
         generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
