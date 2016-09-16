@@ -46,13 +46,14 @@ class Gaussian(generative.Classifier):
                 X_c = X[y == c]
                 mu = np.mean(X_c, axis = 0)
                 sigma = np.std(X_c, axis = 0)
-                theta.append((mu, sigma))
+                theta.append(zip(mu, sigma))
 
             return theta
 
         def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             for c in range(C):
-                mu, sigma = theta[c]
-                log_likelihood[:, c] = sum([stats.norm.logpdf(X[:, j], mu[j], sigma[j]) for j in range(D)])
+                for j in range(D):
+                    mu, sigma = theta[c][j]
+                    log_likelihood[:, c] += stats.norm.logpdf(X[:, j], mu, sigma)
 
         generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
