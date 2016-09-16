@@ -26,8 +26,8 @@ class Classifier(generative.Classifier):
             Betas, gammas = theta
             log_likelihood = np.empty((N, C))
 
-            for i in range(C):
-                log_likelihood[:, i] = X.dot(Betas[i]) + gammas[i]
+            for c in range(C):
+                log_likelihood[:, c] = X.dot(Betas[i]) + gammas[c]
             return log_likelihood
         
         generative.Classifier.__init__(self, get_theta, get_log_likelihood)

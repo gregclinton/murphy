@@ -9,8 +9,8 @@ murphy pp. 84 to 89
 
 class Bernoulli(generative.Classifier):
     '''
-    binary features only (this implementation)
-    from sklearn.naive_bayes import BernoulliNB
+    binary features only
+    or use from sklearn.naive_bayes import BernoulliNB
     '''        
     def __init__(self):
         def get_theta(X, y, N, D, C):
@@ -44,29 +44,26 @@ class Bernoulli(generative.Classifier):
 
 class Gaussian(generative.Classifier):
     '''
-    from sklearn.naive_bayes import GaussianNB
+    or use from sklearn.naive_bayes import GaussianNB
     '''        
     def __init__(self):
         def get_theta(X, y, N, D, C):
-            gammas = []
-            Betas = []
-            Sigma = np.cov(X, rowvar = False)
-            Sigma = np.diag(np.diag(Sigma))
-            InvSigma = inv(Sigma)
+            mu = []
+            sigma = []
 
             for c in range(C):
-                mean = np.mean(X[y == c], axis = 0)
-                gammas.append(-mean.dot(InvSigma).dot(mean) / 2.0)
-                Betas.append(InvSigma.dot(mean))
+                X_c = X[y == c]
+                mu.append(np.mean(X_c, axis = 0))
+                sigma.append(np.std(X_c, axis = 0))
         
-            return Betas, gammas
+            return mu, sigma
 
         def get_log_likelihood(X, N, D, C, theta):
-            Betas, gammas = theta
+            mu, sigma = theta
             log_likelihood = np.empty((N, C))
 
-            for i in range(C):
-                log_likelihood[:, i] = X.dot(Betas[i]) + gammas[i]
+            for c in range(C):
+                log_likelihood[:, c] = X.dot(Betas[i]) + gammas[i]
             return log_likelihood
         
         generative.Classifier.__init__(self, get_theta, get_log_likelihood)        
