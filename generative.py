@@ -1,9 +1,9 @@
 import numpy as np
 
 class Classifier:
-    def __init__(self, get_theta, get_log_likelihood):
+    def __init__(self, get_theta, fill_log_likelihood):
         self.get_theta = get_theta
-        self.get_log_likelihood = get_log_likelihood
+        self.fill_log_likelihood = fill_log_likelihood
         
     def fit(self, X, y):        
         N, D = X.shape
@@ -15,7 +15,9 @@ class Classifier:
         N, D = X.shape
         C = len(self.prior)
         log_prior = np.log(self.prior)
-        log_post = self.get_log_likelihood(X, N, D, C, self.theta)
+        log_post = np.empty((N, C))
+        self.fill_log_likelihood(X, N, D, C, self.theta, log_post)
+        
         for c in range(C):
             log_post[:, c] += log_prior[c]
             

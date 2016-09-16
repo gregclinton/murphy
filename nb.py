@@ -26,15 +26,11 @@ class Bernoulli(generative.Classifier):
 
             return theta
 
-        def get_log_likelihood(X, N, D, C, theta):
-            log_likelihood = np.empty((N, C))
-            
+        def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             for c in range(C):
                 log_likelihood[:, c] = sum([stats.bernoulli.logpmf(X[:, j], theta[c, j]) for j in range(D)])
-
-            return log_likelihood
                 
-        generative.Classifier.__init__(self, get_theta, get_log_likelihood)
+        generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
 
 
 class Gaussian(generative.Classifier):
@@ -53,12 +49,10 @@ class Gaussian(generative.Classifier):
         
             return mu, sigma
 
-        def get_log_likelihood(X, N, D, C, theta):
+        def fill_log_likelihood(X, N, D, C, theta, log_likelihood):
             mu, sigma = theta
-            log_likelihood = np.empty((N, C))
 
             for c in range(C):
                 log_likelihood[:, c] = stats.multivariate_normal.logpdf(X, mu[c], sigma[c])
-            return log_likelihood
         
-        generative.Classifier.__init__(self, get_theta, get_log_likelihood)        
+        generative.Classifier.__init__(self, get_theta, fill_log_likelihood)
