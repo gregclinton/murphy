@@ -7,11 +7,10 @@ class Classifier(generative.Classifier):
     regularized discriminant analysis classifier
     murphy p. 107
     '''        
-    def __init__(self, lmbda = 0):
-        self.lmbda = 0.0
+    def __init__(self, lmbda = 0.0):
+        self.lmbda = lmbda
         
         def get_theta(X, y, N, D, C):
-      
             U, s, V = svd(X, full_matrices = False)
             V = V.T
             Z = U.dot(np.diag(s))
