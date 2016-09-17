@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 import newton
 from sigmoid import sigmoid
 
@@ -22,8 +23,14 @@ class Classifier:
         H = lambda w: X.T.dot(S(w, mu(w))).dot(X) + 2 * penalty * np.eye(D)
         w = np.zeros(D)
         self.theta = w0, self.minimize(w, NLL, g, H)
-    
-    def predict(self, X):
+
+    def predict_log_proba(self, X):
+        return np.log(self.predict_proba(X))
+        
+    def predict_proba(self, X):
         w0, w = self.theta
         X.dot(w)
-        return (sigmoid(w0 + X.dot(w)) > 0.5) * 1
+        return sigmoid(w0 + X.dot(w)
+    
+    def predict(self, X):
+        return (self.predict_proba(X) > 0.5) * 1
