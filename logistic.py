@@ -8,9 +8,12 @@ class Classifier:
     logistic regression classifier
     murphy p. 255
     '''
+    def __init__(self, C = 1):
+        self.C = C
+        
     def fit(self, X, y):
         N, D = X.shape
-        penalty = 0.2
+        penalty = 1.0 / self.C
 
         def NLL(w):
             muw = mu(w)
