@@ -1,8 +1,6 @@
 import numpy as np
-import math
 from numpy.linalg import inv, svd
 import generative
-
 
 class Classifier(generative.Classifier):
     '''
