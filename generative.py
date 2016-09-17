@@ -23,5 +23,8 @@ class Classifier:
 
         return log_post
 
+    def predict_proba(self, X):
+        return np.exp(self.predict_log_proba(X))
+    
     def predict(self, X):
         return np.argmax(self.predict_log_proba(X), axis = 1)
