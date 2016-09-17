@@ -10,7 +10,7 @@ class Classifier:
     '''
     def fit(self, X, y):
         N, D = X.shape
-        penalty = 0.1
+        penalty = 0.2
 
         def NLL(w):
             muw = mu(w)
