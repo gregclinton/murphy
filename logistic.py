@@ -38,7 +38,8 @@ class Classifier:
         if len(self.theta) == 1:
             W = self.theta
             C = len(W) + 1
-            return np.array([np.exp(W[c].dot()for c in range(C)])
+            p = lambda x: [np.exp(W[:, c].dot(x) / [] for c in range(C)]
+            return np.array([p(x) for x in X])
         else:
             w0, w = self.theta
             X.dot(w)
