@@ -34,7 +34,7 @@ def show_regions(clf, X):
     for c in classes(Z):
         i = Z == c
         color = colors[c]
-        plt.plot(XX[i, 0], XX[i, 1], 'o', alpha = 0.2, markersize = 2.5, markerfacecolor = color, markeredgecolor = color)
+        plt.plot(XX[i, 0], XX[i, 1], 'o', alpha = 0.3, markersize = 2.5, markerfacecolor = color, markeredgecolor = color)
         
 def show_contour(clf, X):
     meshx, meshy, XX = mesh(X)
