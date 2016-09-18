@@ -37,7 +37,8 @@ class Classifier:
     def predict_proba(self, X):
         if len(self.theta) == 1:
             W = self.theta
-            return 0.0
+            C = len(W) + 1
+            return np.array([np.exp(W[c].dot()for c in range(C)])
         else:
             w0, w = self.theta
             X.dot(w)
