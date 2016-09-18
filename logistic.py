@@ -29,13 +29,14 @@ class Classifier:
             w = np.zeros(D)
             self.theta = w0, minimize(NLL, w, method = 'Newton-CG', jac = g, hess = H).x
         else:
-            self.theta = 12345
+            self.theta = np.eye(C - 1)
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
 
     def predict_proba(self, X):
-        if self.theta == 12345:
+        if len(self.theta) == 1:
+            W = self.theta
             return 0.0
         else:
             w0, w = self.theta
