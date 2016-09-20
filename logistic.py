@@ -39,6 +39,7 @@ class Classifier:
             def NLL(W):
                 logs = np.log(mu(W))
                 csum = lambda i: np.sum([y[i, c] * logs[i, c] for c in range(C)])
+                csum = lambda i: y[i].dot(logs[i])
                 return -sum([csum(i) for i in range(N)])
 
             mu = lambda W: softmax(X.dot(W))            
