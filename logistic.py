@@ -41,6 +41,7 @@ class Classifier:
                 csum = lambda i: np.sum([y[i, c] * logs[i, c] for c in range(C)])
                 csum = lambda i: y[i].dot(logs[i])
                 return -sum([csum(i) for i in range(N)])
+                return -sum(y.dot(np.log(mu(W))))
 
             mu = lambda W: softmax(X.dot(W))            
             W = np.zeros((D, C))
