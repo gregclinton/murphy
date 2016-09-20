@@ -46,8 +46,8 @@ class Classifier:
             mu = lambda W: softmax(X.dot(W))
             o = lambda x: np.outer(x, x)
             
-            g = lambda W: np.sum([np.kron(mui - y[i], x[i]) for i, mui in enumerate(mu(X.dot(W)))])
-            H = lambda W: np.sum([np.kron(diag(mui) - o(mui), o(x[i])) for i, mui in enumerate(mu(X.dot(W)))])
+            g = lambda W: np.sum([np.kron(mui - y[i], x[i]) for i, mui in enumerate(mu(W))])
+            H = lambda W: np.sum([np.kron(diag(mui) - o(mui), o(x[i])) for i, mui in enumerate(mu(W))])
 
             V0_inv = penalty * np.eye(C)
             
