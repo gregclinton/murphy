@@ -43,7 +43,18 @@ class Classifier:
                 return -sum([csum(i) for i in range(N)])
                 return -sum(y.dot(np.log(mu(W))))
 
-            mu = lambda W: softmax(X.dot(W))            
+            mu = lambda W: softmax(X.dot(W))
+            o = lambda x: np.outer(x, x)
+            
+            g = lambda W: np.sum([np.kron(mui - y[i], x[i]) for i, mui in enumerate(mu(X.dot(W)))])
+            H = lambda W: np.sum([np.kron(diag(mui) - o(mui), o(x[i])) for i, mui in enumerate(mu(X.dot(W)))])
+
+            V0_inv = penalty * np.eye(C)
+            
+            f_prime = lambda w: NLL(w) + 0.5 * np.sum([w.dot(V0_inv).dot(w) for w in W.T])
+            g_prime = lambda w: g(w) + V0_inv.dot(np.sum(W, axis = 1))
+            H_prime = lambda w: H(w) + np.kron(np.eye(C), V0_inv)
+            
             W = np.zeros((D, C))
             W = minimize(f_prime, W, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
             self.theta = W
