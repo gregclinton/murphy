@@ -2,6 +2,7 @@ import numpy as np
 from scipy import stats
 from scipy.optimize import minimize
 from sigmoid import sigmoid
+from softmax import softmax
 
 class Classifier:
     '''
@@ -29,7 +30,8 @@ class Classifier:
             w = np.zeros(D)
             self.theta = w0, minimize(NLL, w, method = 'Newton-CG', jac = g, hess = H).x
         else:
-            self.theta = np.eye(C - 1)
+            W = stats.norm.rvs(size = (D, C))
+            self.theta = W
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
@@ -37,10 +39,7 @@ class Classifier:
     def predict_proba(self, X):
         if len(self.theta) == 1:
             W = self.theta
-            C = len(W) + 1
-            d = np.sum(np.exp(W.T.dot(X)), axis = 1)
-            # p = lambda x: [np.exp(W[:, c].dot(x) / [] for c in range(C)]
-            return np.array([p(x) for x in X])
+            return softmax(X.dot(W))
         else:
             w0, w = self.theta
             X.dot(w)
