@@ -1,5 +1,4 @@
 import numpy as np
-from scipy import stats
 from scipy.optimize import minimize
 from sigmoid import sigmoid
 from softmax import softmax
@@ -43,7 +42,7 @@ class Classifier:
                 return -sum([csum(i) for i in range(N)])
 
             mu = lambda W: softmax(X.dot(W))            
-            W = stats.norm.rvs(size = (D, C))
+            W = np.zeros((D, C))
             self.theta = minimize(NLL, W, method = 'Newton-CG', jac = g, hess = H).x
 
     def predict_log_proba(self, X):
