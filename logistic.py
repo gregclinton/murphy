@@ -43,7 +43,8 @@ class Classifier:
 
             mu = lambda W: softmax(X.dot(W))            
             W = np.zeros((D, C))
-            self.theta = minimize(NLL, W, method = 'Newton-CG', jac = g, hess = H).x
+            W = minimize(f_prime, W, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
+            self.theta = W
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
