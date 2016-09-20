@@ -19,16 +19,23 @@ class Classifier:
         if C == 2:
             def NLL(w):
                 muw = mu(w)
-                return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw)) + self.penalty * w.dot(w)
+                return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
 
             ybar = np.mean(y)
             w0 = np.log(ybar / (1 - ybar))
             mu = lambda w: sigmoid(w0 + X.dot(w))
-            g = lambda w: X.T.dot(mu(w) - y) + 2 * self.penalty * w
+            
+            g = lambda w: X.T.dot(mu(w) - y)
             S = lambda w, mu: np.diag(mu * (1 - mu))
-            H = lambda w: X.T.dot(S(w, mu(w))).dot(X) + 2 * self.penalty * np.eye(D)
+            H = lambda w: X.T.dot(S(w, mu(w))).dot(X)
+            
+            f_prime = lambda w: NLL(w) + self.penalty * w.dot(w)
+            g_prime = lambda w: g(w) + 2 * self.penalty * w
+            H_prime = lambda w: H(w) + 2 * self.penalty * np.eye(D)
+            
             w = np.zeros(D)
-            self.theta = w0, minimize(NLL, w, method = 'Newton-CG', jac = g, hess = H).x
+            w = minimize(f_prime, w, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
+            self.theta = w0, w
         else:
             def NLL(W):
                 logs = np.log(mu(W))
