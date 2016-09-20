@@ -47,4 +47,5 @@ class Classifier:
             return sigmoid(w0 + X.dot(w))
 
     def predict(self, X):
-        return (self.predict_proba(X) > 0.5) * 1
+        p = self.predict_proba(X)
+        return (p > 0.5) * 1 if len(p.shape) == 1 else np.argmax(p, axis = 1)
