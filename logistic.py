@@ -30,8 +30,14 @@ class Classifier:
             w = np.zeros(D)
             self.theta = w0, minimize(NLL, w, method = 'Newton-CG', jac = g, hess = H).x
         else:
+            def NLL(W):
+                logs = np.log(mu(W))
+                csum = lambda i: np.sum([y[i, c] * logs[i, c] for c in range(C)])
+                return -sum([csum(i) for i in range(N)])
+
+            mu = lambda W: softmax(X.dot(W))            
             W = stats.norm.rvs(size = (D, C))
-            self.theta = W
+            self.theta = minimize(NLL, W, method = 'Newton-CG', jac = g, hess = H).x
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
