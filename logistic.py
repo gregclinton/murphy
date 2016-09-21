@@ -55,12 +55,12 @@ class Classifier:
             g1 = lambda W: g0(W) + V0_inv.dot(np.sum(W, axis = 0))
             H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
             
+            fixup = lambda W: np.c_[W.reshape(D, C - 1), np.zeros(D)]
+            
             f2 = lambda W: f1(fixup(W))
             g2 = lambda W: g1(fixup(W))
             H2 = lambda W: H1(fixup(W))
-            
-            fixup = lambda W: np.c_[W.reshape(D, C - 1), np.zeros(D)]
-            
+                        
             W = np.zeros((D, C - 1))
             W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x.reshape(D, C)
             self.theta = W
