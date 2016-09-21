@@ -37,26 +37,33 @@ class Classifier:
             self.theta = w0, w
         else:
             def NLL(W):
+                print y.shape
                 logs = np.log(mu(W))
                 csum = lambda i: np.sum([y[i, c] * logs[i, c] for c in range(C)])
-                csum = lambda i: y[i].dot(logs[i])
+       #         csum = lambda i: y[i].dot(logs[i])
                 return -sum([csum(i) for i in range(N)])
                 return -sum(y.dot(np.log(mu(W))))
 
-            mus = lambda W: enumerate(softmax(X.dot(W)))
+            mu = lambda W: softmax(X.dot(W))
+            mus = lambda W: enumerate(mu(W))
             o = lambda x: np.outer(x, x)
             
-            g = lambda W: np.sum([np.kron(mu - y[i], x[i]) for i, mu in mus(W)])
-            H = lambda W: np.sum([np.kron(diag(mu) - o(mu), o(x[i])) for i, mu in mus(W)])
+            f0 = NLL
+            g0 = lambda W: np.sum([np.kron(mu - y[i], X[i]) for i, mu in mus(W)])
+            H0 = lambda W: np.sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
 
-            V0_inv = penalty * np.eye(C)
+            V0_inv = self.penalty * np.eye(C)
             
-            f_prime = lambda W: NLL(W) + 0.5 * np.sum([w.dot(V0_inv).dot(w) for w in W.T])
-            g_prime = lambda W: g(W) + V0_inv.dot(np.sum(W, axis = 1))
-            H_prime = lambda W: H(W) + np.kron(np.eye(C), V0_inv)
+            f1 = lambda W: f0(W) + 0.5 * np.sum([w.dot(V0_inv).dot(w) for w in W])
+            g1 = lambda W: g0(W) + V0_inv.dot(np.sum(W, axis = 0))
+            H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
+            
+            f2 = lambda W: f1(W.reshape(D, C))
+            g2 = lambda W: g1(W.reshape(D, C))
+            H2 = lambda W: H1(W.reshape(D, C))
             
             W = np.zeros((D, C))
-            W = minimize(f_prime, W, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
+            W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x.reshape(D, C)
             self.theta = W
 
     def predict_log_proba(self, X):
