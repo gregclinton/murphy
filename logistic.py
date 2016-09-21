@@ -62,8 +62,8 @@ class Classifier:
             H2 = lambda W: H1(fixup(W))
                         
             W = np.zeros((D, C - 1))
-            W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x.reshape(D, C)
-            self.theta = W
+            W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
+            self.theta = fixup(W)
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
