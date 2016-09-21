@@ -36,20 +36,17 @@ class Classifier:
             w = minimize(f_prime, w, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
             self.theta = w0, w
         else:
-            def NLL(W):
-                print y.shape
-                logs = np.log(mu(W))
-                csum = lambda i: np.sum([y[i, c] * logs[i, c] for c in range(C)])
-       #         csum = lambda i: y[i].dot(logs[i])
-                return -sum([csum(i) for i in range(N)])
-                return -sum(y.dot(np.log(mu(W))))
-
+            Y = np.zeros((N, C))
+            for i in range(N):
+                Y[i, y[i]] = 1            
+            
+            NLL = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(np.log(mu(W)))])
             mu = lambda W: softmax(X.dot(W))
             mus = lambda W: enumerate(mu(W))
             o = lambda x: np.outer(x, x)
             
             f0 = NLL
-            g0 = lambda W: np.sum([np.kron(mu - y[i], X[i]) for i, mu in mus(W)])
+            g0 = lambda W: np.sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
             H0 = lambda W: np.sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
 
             V0_inv = self.penalty * np.eye(C)
