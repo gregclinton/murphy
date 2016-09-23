@@ -38,7 +38,8 @@ class Classifier:
         else:
             Y = np.zeros((N, C))
             for i in range(N):
-                Y[i, y[i]] = 1            
+                Y[i, y[i]] = 1
+            # Y = Y[:, 0 : -1] # remove column C
             
             NLL = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(np.log(mu(W)))])
             mu = lambda W: softmax(X.dot(W))
@@ -62,7 +63,8 @@ class Classifier:
             H2 = lambda W: H1(fixup(W))
                         
             W = np.zeros((D, C - 1))
-            W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
+            # W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
+            W = minimize(f2, W).x
             self.theta = fixup(W)
 
     def predict_log_proba(self, X):
