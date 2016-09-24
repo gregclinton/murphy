@@ -11,12 +11,22 @@ class Classifier:
     def __init__(self, C = 1):
         self.penalty = 1.0 / C
         
+    def preprocess(self, X):
+        # return X
+        return (X - self.mean) / np.sqrt(np.diag(self.cov))
+        
     def fit(self, X, y):
         N, D = X.shape
         C = len(np.unique(y))
 
+        X = np.array(X, dtype = float)
+        self.mean = np.mean(X, axis = 0)
+        self.cov = np.cov(X, ddof = 0, rowvar = False)
+        
+        X = self.preprocess(X)
+        
         if C == 2:
-            def NLL(w):
+            def nll(w):
                 muw = mu(w)
                 return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
 
@@ -28,7 +38,7 @@ class Classifier:
             S = lambda w, mu: np.diag(mu * (1 - mu))
             H = lambda w: X.T.dot(S(w, mu(w))).dot(X)
             
-            f_prime = lambda w: NLL(w) + self.penalty * w.dot(w)
+            f_prime = lambda w: nll(w) + self.penalty * w.dot(w)
             g_prime = lambda w: g(w) + 2 * self.penalty * w
             H_prime = lambda w: H(w) + 2 * self.penalty * np.eye(D)
             
@@ -65,17 +75,19 @@ class Classifier:
             W = np.zeros((D, C))
             # W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
             W = minimize(f2, W).x
-            self.theta = fixup(W)
-
+            w0 = 0
+            self.theta = w0, fixup(W)
+            
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
 
     def predict_proba(self, X):
-        if isinstance(self.theta, np.ndarray):
-            W = self.theta
-            return softmax(X.dot(W))
+        X = np.array(X, dtype = float)
+        X = self.preprocess(X)
+        w0, w = self.theta
+        if w.ndim == 2:
+            return softmax(X.dot(w))
         else:
-            w0, w = self.theta
             return sigmoid(w0 + X.dot(w))
 
     def predict(self, X):
