@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import minimize
 from sigmoid import sigmoid
-from softmax import softmax
+from softmax import softmax, log_softmax
 
 class Classifier:
     '''
@@ -39,14 +39,14 @@ class Classifier:
             Y = np.zeros((N, C))
             for i in range(N):
                 Y[i, y[i]] = 1
-            # Y = Y[:, 0 : -1] # remove column C
             
-            NLL = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(np.log(mu(W)))])
+            nll = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W))])
             mu = lambda W: softmax(X.dot(W))
+            logmu = lambda W: log_softmax(X.dot(W))
             mus = lambda W: enumerate(mu(W))
             o = lambda x: np.outer(x, x)
             
-            f0 = NLL
+            f0 = nll
             g0 = lambda W: np.sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
             H0 = lambda W: np.sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
 
@@ -56,13 +56,13 @@ class Classifier:
             g1 = lambda W: g0(W) + V0_inv.dot(np.sum(W, axis = 0))
             H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
             
-            fixup = lambda W: np.c_[W.reshape(D, C - 1), np.zeros(D)]
+            fixup = lambda W: W.reshape(D, C)
             
             f2 = lambda W: f1(fixup(W))
             g2 = lambda W: g1(fixup(W))
             H2 = lambda W: H1(fixup(W))
                         
-            W = np.zeros((D, C - 1))
+            W = np.zeros((D, C))
             # W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
             W = minimize(f2, W).x
             self.theta = fixup(W)
