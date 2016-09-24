@@ -69,12 +69,12 @@ class Classifier:
             fixup = lambda W: W.reshape(D, C)
             
             f2 = lambda W: f1(fixup(W))
-            g2 = lambda W: g1(fixup(W))
+            g2 = lambda W: g0(fixup(W))
             H2 = lambda W: H1(fixup(W))
                         
             W = np.zeros((D, C))
             # W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
-            W = minimize(f2, W).x
+            W = minimize(f2, W, jac = g2).x
             w0 = 0
             self.theta = w0, fixup(W)
             
