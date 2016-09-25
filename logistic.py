@@ -12,7 +12,8 @@ class Classifier:
         self.penalty = 1.0 / C
         
     def preprocess(self, X):
-        # return X
+        return X
+        return X - self.mean
         return (X - self.mean) / np.sqrt(np.diag(self.cov))
         
     def fit(self, X, y):
@@ -42,8 +43,7 @@ class Classifier:
             g_prime = lambda w: g(w) + 2 * self.penalty * w
             H_prime = lambda w: H(w) + 2 * self.penalty * np.eye(D)
             
-            w = np.zeros(D)
-            w = minimize(f_prime, w, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
+            w = minimize(f_prime, [0] * D, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
             self.theta = w0, w
         else:
             Y = np.zeros((N, C))
@@ -60,9 +60,9 @@ class Classifier:
             g0 = lambda W: np.sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
             H0 = lambda W: np.sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
 
-            V0_inv = self.penalty * np.eye(C)
+            V0_inv = self.penalty * np.eye(D)
             
-            f1 = lambda W: f0(W) + 0.5 * np.sum([w.dot(V0_inv).dot(w) for w in W])
+            f1 = lambda W: f0(W) + 0.5 * np.sum([w.dot(V0_inv).dot(w) for w in W.T])
             g1 = lambda W: g0(W) + V0_inv.dot(np.sum(W, axis = 0))
             H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
             
@@ -72,9 +72,8 @@ class Classifier:
             g2 = lambda W: g0(fixup(W))
             H2 = lambda W: H1(fixup(W))
                         
-            W = np.zeros((D, C))
-            # W = minimize(f2, W, method = 'Newton-CG', jac = g2, hess = H2).x
-            W = minimize(f2, W, jac = g2).x
+            # W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
+            W = minimize(f2, [0] * (D * C)).x
             w0 = 0
             self.theta = w0, fixup(W)
             
