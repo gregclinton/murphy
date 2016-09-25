@@ -63,13 +63,17 @@ class Classifier:
             V0_inv = self.penalty * np.eye(D)
             
             f1 = lambda W: f0(W) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
-            g1 = lambda W: g0(W) + V0_inv.dot(np.sum(W, axis = 1))
+            g1 = lambda W: g0(W) + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
             H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
+
+            def xg1(W):
+                print np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
+                return g0(W)
             
             fixup = lambda W: W.reshape(D, C)
             
             f2 = lambda W: f1(fixup(W))
-            g2 = lambda W: g0(fixup(W))
+            g2 = lambda W: g1(fixup(W))
             H2 = lambda W: H1(fixup(W))
                         
             W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
