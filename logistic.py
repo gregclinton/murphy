@@ -57,8 +57,8 @@ class Classifier:
             o = lambda x: np.outer(x, x)
             
             f0 = nll
-            g0 = lambda W: np.sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
-            H0 = lambda W: np.sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
+            g0 = lambda W: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
+            H0 = lambda W: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
 
             V0_inv = self.penalty * np.eye(D)
             
@@ -72,7 +72,7 @@ class Classifier:
             g2 = lambda W: g0(fixup(W))
             H2 = lambda W: H1(fixup(W))
                         
-            # W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
+            W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
             W = minimize(f2, [0] * (D * C)).x
             w0 = 0
             self.theta = w0, fixup(W)
