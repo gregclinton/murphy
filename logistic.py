@@ -62,7 +62,7 @@ class Classifier:
 
             V0_inv = self.penalty * np.eye(D)
             
-            f1 = lambda W: f0(W) + 0.5 * np.sum([w.dot(V0_inv).dot(w) for w in W.T])
+            f1 = lambda W: f0(W) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
             g1 = lambda W: g0(W) + V0_inv.dot(np.sum(W, axis = 0))
             H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
             
