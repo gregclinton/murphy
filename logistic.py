@@ -9,7 +9,7 @@ class Classifier:
     murphy p. 255
     '''
     def __init__(self, C = 1):
-        self.penalty = 1.0 / C
+        self.penalty = 0.0 / C
         
     def preprocess(self, X):
         return X
@@ -34,16 +34,17 @@ class Classifier:
             ybar = np.mean(y)
             w0 = np.log(ybar / (1 - ybar))
             mu = lambda w: sigmoid(w0 + X.dot(w))
-            
-            g = lambda w: X.T.dot(mu(w) - y)
             S = lambda w, mu: np.diag(mu * (1 - mu))
-            H = lambda w: X.T.dot(S(w, mu(w))).dot(X)
             
-            f_prime = lambda w: nll(w) + self.penalty * w.dot(w)
-            g_prime = lambda w: g(w) + 2 * self.penalty * w
-            H_prime = lambda w: H(w) + 2 * self.penalty * np.eye(D)
+            f0 = nll
+            g0 = lambda w: X.T.dot(mu(w) - y)
+            H0 = lambda w: X.T.dot(S(w, mu(w))).dot(X)
             
-            w = minimize(f_prime, [0] * D, method = 'Newton-CG', jac = g_prime, hess = H_prime).x
+            f1 = lambda w: f0(w) + self.penalty * w.dot(w)
+            g1 = lambda w: g0(w) + 2 * self.penalty * w
+            H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
+            
+            w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
             self.theta = w0, w
         else:
             Y = np.zeros((N, C))
