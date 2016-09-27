@@ -27,7 +27,6 @@ class Classifier:
 
     def predict_proba(self, X):
         w0, w = self.theta
-        X.dot(w)
         return sigmoid(w0 + X.dot(w))
 
     def predict(self, X):
