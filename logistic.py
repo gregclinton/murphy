@@ -45,6 +45,7 @@ class Classifier:
             H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
             
             w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
+            print minimize(nll, [0] * D).x
             self.theta = w0, w
         else:
             Y = np.zeros((N, C))
