@@ -12,15 +12,14 @@ class Classifier:
         self.penalty = 0.0 / C
         
     def preprocess(self, X):
-        return X
-        return X - self.mean
+        X = X.astype(float)
         return (X - self.mean) / np.sqrt(np.diag(self.cov))
         
     def fit(self, X, y):
         N, D = X.shape
         C = len(np.unique(y))
 
-        X = np.array(X, dtype = float)
+        X = X.astype(float)
         self.mean = np.mean(X, axis = 0)
         self.cov = np.cov(X, ddof = 0, rowvar = False)
         
@@ -45,7 +44,6 @@ class Classifier:
             H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
             
             w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
-            print minimize(nll, [0] * D).x
             self.theta = w0, w
         else:
             Y = np.zeros((N, C))
@@ -68,10 +66,6 @@ class Classifier:
             g1 = lambda W: g0(W) + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
             H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
 
-            def xg1(W):
-                print np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
-                return g0(W)
-            
             fixup = lambda W: W.reshape(D, C)
             
             f2 = lambda W: f1(fixup(W))
@@ -79,15 +73,12 @@ class Classifier:
             H2 = lambda W: H1(fixup(W))
                         
             W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
-            W = minimize(f2, [0] * (D * C)).x
-            w0 = 0
             self.theta = w0, fixup(W)
             
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
 
     def predict_proba(self, X):
-        X = np.array(X, dtype = float)
         X = self.preprocess(X)
         w0, w = self.theta
         if w.ndim == 2:
