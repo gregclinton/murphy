@@ -41,6 +41,12 @@ def sunspots():
     data = sm.datasets.sunspots.load_pandas().data.SUNACTIVITY.values
     return pd.Series(data, pd.Index(pd.date_range('1700', '2008', freq = 'AS')))
 
+cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/Introductory_Time_Series_with_R_Metcalfe/'
+
+def maine():
+    data = pd.read_csv(cowpertwait + 'Maine.dat').unemploy.values
+    return pd.Series(data, pd.Index(pd.date_range('1996', periods = len(data), freq = 'MS')))
+
 def mnist():
     # https://www.youtube.com/watch?v=S75EdAcXHKk
     # https://github.com/Newmu/Theano-Tutorials
