@@ -25,7 +25,7 @@ def multiclass():
     X = np.array([mvn([1, 1] if heads else [4, 4]) for heads in y])
     return X, y
 
-def murphy281:
+def murphy281():
     X = np.array([[2.2, 0.8], [2.6, 4.4], [1.4, 5.8], [2.4, 5.8], [3.4, 5.4], [3.4, 6.4],
         [5.5, 1.1], [5.6, 2.4], [5.5, 4.4], [6.4, 1.2], [6.4, 2.0], [7.8, 1.2], [7.6, 2.3]])
     y = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], dtype = float)    

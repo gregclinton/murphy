@@ -12,6 +12,7 @@ class Classifier:
         self.penalty = 0.0 / C
         
     def preprocess(self, X):
+        # see sklearn.preprocessing.scale
         X = X.astype(float)
         return (X - self.mean) / np.sqrt(np.diag(self.cov))
         
