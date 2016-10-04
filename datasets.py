@@ -47,6 +47,14 @@ def maine():
     data = pd.read_csv(cowpertwait + 'Maine.dat').unemploy.values
     return pd.Series(data, pd.Index(pd.date_range('1996', periods = len(data), freq = 'MS')))
 
+def exchange():
+    data = pd.read_csv(cowpertwait + 'pounds_nz.dat').xrate.values
+    return pd.Series(data, pd.Index(pd.date_range('1991', periods = len(data), freq = 'Q')))
+
+def warming():
+    data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
+    return pd.Series(data, pd.Index(pd.date_range('1856', periods = len(data), freq = 'M')))
+
 def mnist():
     # https://www.youtube.com/watch?v=S75EdAcXHKk
     # https://github.com/Newmu/Theano-Tutorials
