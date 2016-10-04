@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
 import gzip
 
 def iris():
@@ -30,6 +31,15 @@ def murphy281():
         [5.5, 1.1], [5.6, 2.4], [5.5, 4.4], [6.4, 1.2], [6.4, 2.0], [7.8, 1.2], [7.6, 2.3]])
     y = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], dtype = float)    
     return X, y
+
+def passengers():
+    url = 'https://vincentarelbundock.github.io/Rdatasets/csv/datasets/AirPassengers.csv'
+    data = pd.read_csv(url).AirPassengers.values
+    return pd.Series(data, pd.date_range('1949', '1960-12', freq = 'MS'))
+
+def sunspots():
+    data = sm.datasets.sunspots.load_pandas().data.SUNACTIVITY.values
+    return pd.Series(data, pd.Index(pd.date_range('1700', '2008', freq = 'AS')))
 
 def mnist():
     # https://www.youtube.com/watch?v=S75EdAcXHKk
