@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import minimize
-from sigmoid import sigmoid
 from softmax import softmax, log_softmax
+from scipy.special import expit
 
 class Classifier:
     '''
@@ -33,7 +33,7 @@ class Classifier:
 
             ybar = np.mean(y)
             w0 = np.log(ybar / (1 - ybar))
-            mu = lambda w: sigmoid(w0 + X.dot(w))
+            mu = lambda w: expit(w0 + X.dot(w))
             S = lambda w, mu: np.diag(mu * (1 - mu))
             
             f0 = nll
@@ -85,7 +85,7 @@ class Classifier:
         if w.ndim == 2:
             return softmax(X.dot(w))
         else:
-            return sigmoid(w0 + X.dot(w))
+            return expit(w0 + X.dot(w))
 
     def predict(self, X):
         p = self.predict_proba(X)

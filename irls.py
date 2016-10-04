@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import inv
-from sigmoid import sigmoid
+from scipy.special import expit
 
 class Classifier:
     '''
@@ -15,7 +15,7 @@ class Classifier:
 
         for k in range(20):
             eta = w0 + X.dot(w)
-            mu = sigmoid(eta)
+            mu = expit(eta)
             s = mu * (1 - mu)
             z = eta + (y - mu) / s
             S = np.diag(s)
@@ -27,7 +27,7 @@ class Classifier:
 
     def predict_proba(self, X):
         w0, w = self.theta
-        return sigmoid(w0 + X.dot(w))
+        return expit(w0 + X.dot(w))
 
     def predict(self, X):
         return (self.predict_proba(X) > 0.5) * 1
