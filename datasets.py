@@ -57,6 +57,19 @@ def warming():
     data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
     return pd.Series(data, pd.Index(pd.date_range('1856', periods = len(data), freq = 'M')))
 
+def cbe(col):
+    data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
+    return pd.Series(data, pd.Index(pd.date_range('1958', periods = len(data), freq = 'M')))
+
+def choc():
+    return cbe(0)
+
+def beer():
+    return cbe(1)
+
+def elec():
+    return cbe(2)
+
 def unemployment(start, end):
     # bureau of labor statistics
     # http://www.bls.gov/developers/
