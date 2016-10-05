@@ -70,13 +70,21 @@ def beer():
 def elec():
     return cbe(2)
 
+def temperature():
+    token = 'nvPClxSghOlFavUKyLzkOmzUaIcqRrfN'
+    headers = {'Content-type': 'application/json', 'token': token}
+    url = 'http://www.ncdc.noaa.gov/cdo-web/api/v2/datasets'
+    o = requests.get(url, headers = headers)
+    return o.text
+    
 def unemployment(start, end):
     # bureau of labor statistics
     # http://www.bls.gov/developers/
     headers = {'Content-type': 'application/json'}
     key = '9de5607186434ebb84520bf1120fc943'
     data = json.dumps({'seriesid': ['LNS14000000'], 'startyear': start, 'endyear' : end, 'registrationKey': key})
-    o = requests.post('http://api.bls.gov/publicAPI/v2/timeseries/data/', data = data, headers = headers)
+    url = 'http://api.bls.gov/publicAPI/v2/timeseries/data/'
+    o = requests.post(url, data = data, headers = headers)
     o = json.loads(o.text)
     o = o['Results']['series'][0]['data']
     o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
