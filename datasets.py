@@ -57,12 +57,12 @@ def warming():
     data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
     return pd.Series(data, pd.Index(pd.date_range('1856', periods = len(data), freq = 'M')))
 
-def unemployment():
+def unemployment(start, end):
     # bureau of labor statistics
     # http://www.bls.gov/developers/
     headers = {'Content-type': 'application/json'}
     key = '9de5607186434ebb84520bf1120fc943'
-    data = json.dumps({'seriesid': ['LNS14000000'], 'startyear': '1999', 'endyear' : '2016', 'registrationKey': key})
+    data = json.dumps({'seriesid': ['LNS14000000'], 'startyear': start, 'endyear' : end, 'registrationKey': key})
     o = requests.post('http://api.bls.gov/publicAPI/v2/timeseries/data/', data = data, headers = headers)
     o = json.loads(o.text)
     o = o['Results']['series'][0]['data']
