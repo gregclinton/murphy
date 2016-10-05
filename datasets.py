@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import gzip
+import requests
+import json
 
 def iris():
     url = 'https://raw.githubusercontent.com/uiuc-cse/data-fa14/gh-pages/data/iris.csv'
@@ -54,6 +56,20 @@ def exchange():
 def warming():
     data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
     return pd.Series(data, pd.Index(pd.date_range('1856', periods = len(data), freq = 'M')))
+
+def unemployment():
+    # bureau of labor statistics
+    # http://www.bls.gov/developers/
+    headers = {'Content-type': 'application/json'}
+    key = '9de5607186434ebb84520bf1120fc943'
+    data = json.dumps({'seriesid': ['LNS14000000'], 'startyear': '1999', 'endyear' : '2016', 'registrationKey': key})
+    o = requests.post('http://api.bls.gov/publicAPI/v2/timeseries/data/', data = data, headers = headers)
+    o = json.loads(o.text)
+    o = o['Results']['series'][0]['data']
+    o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
+    o = np.array(o)
+    ts = pd.Series(o[:, 1], pd.DatetimeIndex(o[:, 0]))    
+    return ts.sort_index().astype(float)
 
 def mnist():
     # https://www.youtube.com/watch?v=S75EdAcXHKk
