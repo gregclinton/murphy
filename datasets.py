@@ -103,16 +103,30 @@ def temperature():
     o = json.loads(o.text)
     return pd.DataFrame(o['results'])
     
-def unemployment(start, end):
+def bls(seriesid, start, end):
     # bureau of labor statistics
     # http://www.bls.gov/developers/
     headers = {'Content-type': 'application/json'}
-    key = '9de5607186434ebb84520bf1120fc943'
-    data = json.dumps({'seriesid': ['LNS14000000'], 'startyear': start, 'endyear' : end, 'registrationKey': key})
     url = 'http://api.bls.gov/publicAPI/v2/timeseries/data/'
-    o = requests.post(url, data = data, headers = headers)
+    q = {}
+    q['seriesid'] = [seriesid]
+    q['startyear'] = start
+    q['endyear'] = end
+    q['registrationKey'] = '9de5607186434ebb84520bf1120fc943'
+    o = requests.post(url, data = json.dumps(q), headers = headers)
     o = json.loads(o.text)
-    o = o['Results']['series'][0]['data']
+    return o['Results']['series'][0]['data']
+    
+def unemployment(start, end):
+    o = bls('LNS14000000', start, end)
+    o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
+    o = np.array(o)
+    ts = pd.Series(o[:, 1], pd.DatetimeIndex(o[:, 0]))    
+    return ts.sort_index().astype(float)
+
+def cpi(start, end):
+    # consumer price index (used to calculate inflation)
+    o = bls('CUUR0000SA0L1E', start, end)
     o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
     o = np.array(o)
     ts = pd.Series(o[:, 1], pd.DatetimeIndex(o[:, 0]))    
