@@ -129,8 +129,16 @@ def cpi(start, end):
     o = bls('CUUR0000SA0L1E', start, end)
     o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
     o = np.array(o)
-    ts = pd.Series(o[:, 1], pd.DatetimeIndex(o[:, 0]))    
+    data = o[:, 1]
+    ts = pd.Series(data, pd.period_range(start, periods = len(data), freq = 'M'))
     return ts.sort_index().astype(float)
+
+def inflation(start, end):
+    x = datasets.cpi(start - 1, end)
+    before = x.iloc[:-12].values
+    after = x.iloc[12:].values
+    data = np.round(100. * (after - before) / before, 1)
+    return pd.Series(data, pd.period_range(start, periods = len(data), freq = 'M'))
 
 def mnist():
     # https://www.youtube.com/watch?v=S75EdAcXHKk
