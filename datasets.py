@@ -37,7 +37,7 @@ def murphy281():
 def passengers():
     url = 'https://vincentarelbundock.github.io/Rdatasets/csv/datasets/AirPassengers.csv'
     data = pd.read_csv(url).AirPassengers.values
-    return pd.Series(data, pd.date_range('1949', periods = len(data), freq = 'MS'))
+    return pd.Series(data, pd.period_range('1949', periods = len(data), freq = 'M'))
 
 def sunspots():
     data = sm.datasets.sunspots.load_pandas().data.SUNACTIVITY.values
