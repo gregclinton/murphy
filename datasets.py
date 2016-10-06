@@ -102,14 +102,14 @@ def noaa(datasetid, zipcode, start, end):
     token = 'nvPClxSghOlFavUKyLzkOmzUaIcqRrfN'
     headers = {'Content-type': 'application/json', 'token': token}
     noaa = 'http://www.ncdc.noaa.gov/cdo-web/api/v2/data'
-    q = 'datasetid=%s&locationid=ZIP:%s&startdate=%s-01-01&enddate=%s-01-01' % (datasetid, zipcode, start, end)
+    q = 'datasetid=%s&locationid=ZIP:%s&startdate=%s&enddate=%s' % (datasetid, zipcode, start, end)
     url = '%s?%s' % (noaa, q)
     o = requests.get(url, headers = headers)
     o = json.loads(o.text)
     return pd.DataFrame(o['results'])
     
 def temperature(zipcode, start, end):
-    return noaa('GHCNDMS', zipcode, start, end)
+    return noaa('GHCND', zipcode, start, end)
     
 def bls(seriesid, start, end):
     # bureau of labor statistics
