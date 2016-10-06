@@ -69,14 +69,17 @@ def warming():
     data = df.iloc[::2, 1 :-1].values.ravel()
     return pd.Series(data, pd.Index(pd.period_range('1850', periods = len(data), freq = 'M')))
 
-def finance():
+def yql(q):
     yql = 'https://query.yahooapis.com/v1/public/yql'
-    q = "env 'store://datatables.org/alltableswithkeys' ; "
-    q += "select * from yahoo.finance.historicaldata "
-    q += "where symbol = 'EUR=X' and startDate = '2009-09-11' and endDate = '2010-03-10'"
     url = '%s?q=%s&format=json' % (yql, q)
     o = json.loads(requests.get(url).text)
-    return pd.DataFrame(o['query']['results']['quote'])
+    return o['query']['results']    
+    
+def stock(symbol, start, end):
+    q = "env 'store://datatables.org/alltableswithkeys' ; "
+    q += "select * from yahoo.finance.historicaldata "
+    q += "where symbol = '%s' and startDate = '%s-01-01' and endDate = '%s-12-31'" % (symbol, start, end)
+    return pd.DataFrame(yql(q)['quote'])
 
 def cbe(col):
     data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
