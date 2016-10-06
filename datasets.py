@@ -71,6 +71,7 @@ def elec():
     return cbe(2)
 
 def temperature():
+    # http://www.ncdc.noaa.gov/cdo-web/webservices/v2
     token = 'nvPClxSghOlFavUKyLzkOmzUaIcqRrfN'
     headers = {'Content-type': 'application/json', 'token': token}
     url = 'http://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCNDMS&locationid=ZIP:28801&startdate=2000-01-01&enddate=2010-01-01'
