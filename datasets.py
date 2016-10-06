@@ -57,6 +57,27 @@ def warming():
     data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
     return pd.Series(data, pd.Index(pd.date_range('1856', periods = len(data), freq = 'M')))
 
+def warming():
+    url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
+    df = pd.read_fwf(url, header = None)
+    data = df.iloc[::2, -1].values
+    return pd.Series(data, pd.Index(pd.period_range('1850', periods = len(data), freq = 'A')))
+
+def warming():
+    url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
+    df = pd.read_fwf(url, header = None)
+    data = df.iloc[::2, 1 :-1].values.ravel()
+    return pd.Series(data, pd.Index(pd.period_range('1850', periods = len(data), freq = 'M')))
+
+def finance():
+    yql = 'https://query.yahooapis.com/v1/public/yql'
+    q = "env 'store://datatables.org/alltableswithkeys';"
+    q += "select * from yahoo.finance.historicaldata "
+    q += "where symbol = 'EUR=X' and startDate = '2009-09-11' and endDate = '2010-03-10'"
+    url = '%s?q=%s&format=json' % (yql, q)
+    o = json.loads(requests.get(url).text)
+    return pd.DataFrame(o['query']['results']['quote'])
+
 def cbe(col):
     data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
     return pd.Series(data, pd.Index(pd.date_range('1958', periods = len(data), freq = 'M')))
