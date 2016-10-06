@@ -47,11 +47,11 @@ cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/
 
 def maine():
     data = pd.read_csv(cowpertwait + 'Maine.dat').unemploy.values
-    return pd.Series(data, pd.Index(pd.date_range('1996', periods = len(data), freq = 'MS')))
+    return pd.Series(data, pd.Index(pd.period_range('1996', periods = len(data), freq = 'M')))
 
 def exchange():
     data = pd.read_csv(cowpertwait + 'pounds_nz.dat').xrate.values
-    return pd.Series(data, pd.Index(pd.date_range('1991', periods = len(data), freq = 'Q')))
+    return pd.Series(data, pd.Index(pd.period_range('1991', periods = len(data), freq = 'Q')))
 
 def warming():
     data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
@@ -71,7 +71,7 @@ def warming():
 
 def finance():
     yql = 'https://query.yahooapis.com/v1/public/yql'
-    q = "env 'store://datatables.org/alltableswithkeys';"
+    q = "env 'store://datatables.org/alltableswithkeys' ; "
     q += "select * from yahoo.finance.historicaldata "
     q += "where symbol = 'EUR=X' and startDate = '2009-09-11' and endDate = '2010-03-10'"
     url = '%s?q=%s&format=json' % (yql, q)
@@ -80,7 +80,7 @@ def finance():
 
 def cbe(col):
     data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
-    return pd.Series(data, pd.Index(pd.date_range('1958', periods = len(data), freq = 'M')))
+    return pd.Series(data, pd.Index(pd.period_range('1958', periods = len(data), freq = 'M')))
 
 def choc():
     return cbe(0)
