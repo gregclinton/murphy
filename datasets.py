@@ -94,17 +94,22 @@ def beer():
 def elec():
     return cbe(2)
 
-def temperature():
+def noaa(datasetid, zipcode, start, end):
     # http://www.ncdc.noaa.gov/cdo-web/webservices/v2
     # http://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
     # see TMAX
     # http://www1.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt
     token = 'nvPClxSghOlFavUKyLzkOmzUaIcqRrfN'
     headers = {'Content-type': 'application/json', 'token': token}
-    url = 'http://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCNDMS&locationid=ZIP:28801&startdate=2000-01-01&enddate=2010-01-01'
+    noaa = 'http://www.ncdc.noaa.gov/cdo-web/api/v2/data'
+    q = 'datasetid=%s&locationid=ZIP:%s&startdate=%s-01-01&enddate=%s-01-01' % (datasetid, zipcode, start, end)
+    url = '%s?%s' % (noaa, q)
     o = requests.get(url, headers = headers)
     o = json.loads(o.text)
     return pd.DataFrame(o['results'])
+    
+def temperature(zipcode, start, end):
+    return noaa('GHCNDMS', zipcode, start, end)
     
 def bls(seriesid, start, end):
     # bureau of labor statistics
