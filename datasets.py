@@ -77,7 +77,12 @@ def yql(q):
     url = '%s?q=%s&format=json' % (yql, q)
     o = json.loads(requests.get(url).text)
     return o['query']['results']    
-    
+
+def stock(symbol):
+    q = "env 'store://datatables.org/alltableswithkeys' ; "
+    q += "select Ask from yahoo.finance.quotes where symbol = '%s' " % symbol
+    return yql(q)
+
 def stock(symbol, start, end):
     q = "env 'store://datatables.org/alltableswithkeys' ; "
     q += "select Date, Close from yahoo.finance.historicaldata "
@@ -85,7 +90,7 @@ def stock(symbol, start, end):
     df = pd.DataFrame(yql(q)['quote'])
     series = pd.Series(df.Close.values, pd.PeriodIndex(df.Date, freq = 'D'))
     return series.sort_index().astype(float)
-
+    
 def noaa(datasetid, zipcode, start, end):
     # http://www.ncdc.noaa.gov/cdo-web/webservices/v2
     # http://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
