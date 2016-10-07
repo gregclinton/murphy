@@ -53,15 +53,18 @@ def exchange():
     data = pd.read_csv(cowpertwait + 'pounds_nz.dat').xrate.values
     return pd.Series(data, pd.Index(pd.period_range('1991', periods = len(data), freq = 'Q')))
 
-def warming():
-    data = pd.read_fwf(cowpertwait + 'global.dat').values.ravel()
-    return pd.Series(data, pd.Index(pd.date_range('1856', periods = len(data), freq = 'M')))
+def cbe(col):
+    data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
+    return pd.Series(data, pd.Index(pd.period_range('1958', periods = len(data), freq = 'M')))
 
-def warming():
-    url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
-    df = pd.read_fwf(url, header = None)
-    data = df.iloc[::2, -1].values
-    return pd.Series(data, pd.Index(pd.period_range('1850', periods = len(data), freq = 'A')))
+def choc():
+    return cbe(0)
+
+def beer():
+    return cbe(1)
+
+def elec():
+    return cbe(2)
 
 def warming():
     url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
@@ -77,22 +80,11 @@ def yql(q):
     
 def stock(symbol, start, end):
     q = "env 'store://datatables.org/alltableswithkeys' ; "
-    q += "select * from yahoo.finance.historicaldata "
-    q += "where symbol = '%s' and startDate = '%s-01-01' and endDate = '%s-12-31'" % (symbol, start, end)
-    return pd.DataFrame(yql(q)['quote'])
-
-def cbe(col):
-    data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
-    return pd.Series(data, pd.Index(pd.period_range('1958', periods = len(data), freq = 'M')))
-
-def choc():
-    return cbe(0)
-
-def beer():
-    return cbe(1)
-
-def elec():
-    return cbe(2)
+    q += "select Date, Close from yahoo.finance.historicaldata "
+    q += "where symbol = '%s' and startDate = '%s' and endDate = '%s'" % (symbol, start, end)
+    df = pd.DataFrame(yql(q)['quote'])
+    series = pd.Series(df.Close.values, pd.PeriodIndex(df.Date, freq = 'D'))
+    return series.sort_index().astype(float)
 
 def noaa(datasetid, zipcode, start, end):
     # http://www.ncdc.noaa.gov/cdo-web/webservices/v2
