@@ -129,7 +129,7 @@ def unemployment(start, end):
     o = bls('LNS14000000', start, end)
     o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
     o = np.array(o)
-    ts = pd.Series(o[:, 1], pd.DatetimeIndex(o[:, 0]))    
+    ts = pd.Series(o[:, 1], pd.PeriodIndex(o[:, 0], freq = 'M'))
     return ts.sort_index().astype(float)
 
 def cpi(start, end):
@@ -138,11 +138,11 @@ def cpi(start, end):
     o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
     o = np.array(o)
     data = o[:, 1]
-    ts = pd.Series(data, pd.period_range(start, periods = len(data), freq = 'M'))
+    ts = pd.Series(o[:, 1], pd.PeriodIndex(o[:, 0], freq = 'M'))
     return ts.sort_index().astype(float)
 
 def inflation(start, end):
-    x = datasets.cpi(start - 1, end)
+    x = cpi(start - 1, end)
     before = x.iloc[:-12].values
     after = x.iloc[12:].values
     data = np.round(100. * (after - before) / before, 1)
