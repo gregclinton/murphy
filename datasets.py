@@ -90,7 +90,7 @@ def stock(symbol, start, end):
     df = pd.DataFrame(yql(q)['quote'])
     series = pd.Series(df.Close.values, pd.PeriodIndex(df.Date, freq = 'D'))
     return series.sort_index().astype(float)
-    
+
 def noaa(datasetid, zipcode, start, end):
     # http://www.ncdc.noaa.gov/cdo-web/webservices/v2
     # http://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
