@@ -91,23 +91,20 @@ def stock(symbol, start, end):
     series = pd.Series(df.Close.values, pd.PeriodIndex(df.Date, freq = 'D'))
     return series.sort_index().astype(float)
 
-def noaa(datasetid, zipcode, start, end):
+def temperature(start, end):
     # http://www.ncdc.noaa.gov/cdo-web/webservices/v2
     # http://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
-    # see TMAX
     # http://www1.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt
     token = 'nvPClxSghOlFavUKyLzkOmzUaIcqRrfN'
     headers = {'Content-type': 'application/json', 'token': token}
     noaa = 'http://www.ncdc.noaa.gov/cdo-web/api/v2/data'
-    q = 'datasetid=%s&locationid=ZIP:%s&startdate=%s&enddate=%s' % (datasetid, zipcode, start, end)
+    q = 'datasetid=GHCND&datatypeid=TMAX&stationid=GHCND:AGE00147708&startdate=%s&enddate=%s' % (start, end)
     url = '%s?%s' % (noaa, q)
-    o = requests.get(url, headers = headers)
-    o = json.loads(o.text)
-    return pd.DataFrame(o['results'])
-    
-def temperature(zipcode, start, end):
-    return noaa('GHCND', zipcode, start, end)
-    
+    o = json.loads(requests.get(url, headers = headers).text)
+    df = pd.DataFrame(o['results'])
+    temps = df.value.values * 9 / 5.0 - 459.67
+    return pd.Series(temps, pd.PeriodIndex(df.date.values, freq = 'D'))
+
 def bls(seriesid, start, end):
     # bureau of labor statistics
     # http://www.bls.gov/developers/
@@ -121,7 +118,7 @@ def bls(seriesid, start, end):
     o = requests.post(url, data = json.dumps(q), headers = headers)
     o = json.loads(o.text)
     return o['Results']['series'][0]['data']
-    
+
 def unemployment(start, end):
     o = bls('LNS14000000', start, end)
     o = [(row['year'] + '-' + row['period'][1 : 3], row['value']) for row in o]
