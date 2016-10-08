@@ -66,6 +66,9 @@ def beer():
 def elec():
     return cbe(2)
 
+def wave():
+    return pd.read_csv(cowpertwait + 'wave.dat').waveht.values
+
 def warming():
     url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
     df = pd.read_fwf(url, header = None)
