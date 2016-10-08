@@ -21,3 +21,12 @@ def acf(x, nlags):
     boo = lambda t, k: (x[t] - xbar) * (x[t + k] - xbar)
     c = lambda k: np.sum([boo(t, k) for t in xrange(n - k)]) / n
     return np.array([c(k) for k in xrange(nlags + 1)]) / c(0)
+
+def ccf(x1, x2, nlags):
+    x = [x1, x2]
+    xbar = [np.mean(x1), np.mean(x2)]
+    n = len(x1)
+    boo = lambda t, k, i, j: (x[i][t + k] - xbar[i]) * (x[j][t] - xbar[j])
+    c = lambda k, i, j: np.sum([boo(t, k, i, j) for t in xrange(n - k)]) / n
+    ccvf = np.array([c(k, 0, 1) for k in xrange(nlags + 1)])
+    return  ccvf / np.sqrt(c(0, 0, 0) * c(0, 1, 1))
