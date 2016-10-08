@@ -22,65 +22,16 @@ def htwt():
     y = (y == 1) * y
     return X * 1.0, y * 1.0
 
-def multiclass():
-    mvn = stats.multivariate_normal.rvs
-    y = 1.0 * np.random.choice(2, size = 200)
-    X = np.array([mvn([1, 1] if heads else [4, 4]) for heads in y])
-    return X, y
-
-def murphy281():
-    X = np.array([[2.2, 0.8], [2.6, 4.4], [1.4, 5.8], [2.4, 5.8], [3.4, 5.4], [3.4, 6.4],
-        [5.5, 1.1], [5.6, 2.4], [5.5, 4.4], [6.4, 1.2], [6.4, 2.0], [7.8, 1.2], [7.6, 2.3]])
-    y = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], dtype = float)    
-    return X, y
-
 def passengers():
     url = 'https://vincentarelbundock.github.io/Rdatasets/csv/datasets/AirPassengers.csv'
     data = pd.read_csv(url).AirPassengers.values
     return pd.Series(data, pd.period_range('1949', periods = len(data), freq = 'M'))
 
-def sunspots():
-    data = sm.datasets.sunspots.load_pandas().data.SUNACTIVITY.values
-    return pd.Series(data, pd.Index(pd.date_range('1700', '2008', freq = 'AS')))
-
 # https://github.com/burakbayramli/kod/tree/master/books/Introductory_Time_Series_with_R_Metcalfe
 cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/Introductory_Time_Series_with_R_Metcalfe/'
 
-def font():
-    return pd.read_fwf(cowpertwait + 'Fontdsdt.dat')
-
-def varnish():
-    return pd.read_fwf(cowpertwait + 'varnish.dat')
-
-def guesswhat():
-    return pd.read_table(cowpertwait + 'guesswhat.dat', sep = '\t')
-
-def ch2ex2():
-    return pd.read_table(cowpertwait + 'ch2ex2.dat', sep = '\t')
-
-def maine():
-    data = pd.read_csv(cowpertwait + 'Maine.dat').unemploy.values
-    return pd.Series(data, pd.Index(pd.period_range('1996', periods = len(data), freq = 'M')))
-
-def exchange():
-    data = pd.read_csv(cowpertwait + 'pounds_nz.dat').xrate.values
-    return pd.Series(data, pd.Index(pd.period_range('1991', periods = len(data), freq = 'Q')))
-
-def cbe(col):
-    data = pd.read_table(cowpertwait + 'cbe.dat', sep = '\t').values[:, col]
-    return pd.Series(data, pd.Index(pd.period_range('1958', periods = len(data), freq = 'M')))
-
-def choc():
-    return cbe(0)
-
-def beer():
-    return cbe(1)
-
-def elec():
-    return cbe(2)
-
-def wave():
-    return pd.read_csv(cowpertwait + 'wave.dat').waveht.values
+def approval():
+    return pd.read_table(cowpertwait + 'ApprovActiv.dat', sep = '\t')
 
 def warming():
     url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
