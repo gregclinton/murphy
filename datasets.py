@@ -43,7 +43,20 @@ def sunspots():
     data = sm.datasets.sunspots.load_pandas().data.SUNACTIVITY.values
     return pd.Series(data, pd.Index(pd.date_range('1700', '2008', freq = 'AS')))
 
+# https://github.com/burakbayramli/kod/tree/master/books/Introductory_Time_Series_with_R_Metcalfe
 cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/Introductory_Time_Series_with_R_Metcalfe/'
+
+def font():
+    return pd.read_fwf(cowpertwait + 'Fontdsdt.dat')
+
+def varnish():
+    return pd.read_fwf(cowpertwait + 'varnish.dat')
+
+def guesswhat():
+    return pd.read_table(cowpertwait + 'guesswhat.dat', sep = '\t')
+
+def ch2ex2():
+    return pd.read_table(cowpertwait + 'ch2ex2.dat', sep = '\t')
 
 def maine():
     data = pd.read_csv(cowpertwait + 'Maine.dat').unemploy.values
