@@ -30,9 +30,10 @@ def passengers():
 # https://github.com/burakbayramli/kod/tree/master/books/Introductory_Time_Series_with_R_Metcalfe
 cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/Introductory_Time_Series_with_R_Metcalfe/'
 
-def approval():
-    return pd.read_table(cowpertwait + 'ApprovActiv.dat', sep = '\t')
-
+def motor():
+    data = pd.read_csv(cowpertwait + 'motororg.dat')['complaints'].values
+    return pd.Series(data, pd.period_range('1996', periods = len(data), freq = 'M'))
+    
 def warming():
     url = 'https://crudata.uea.ac.uk/cru/data/temperature/HadCRUT4-gl.dat'
     df = pd.read_fwf(url, header = None)
