@@ -30,3 +30,11 @@ def ccf(x1, x2, nlags):
     c = lambda k, i, j: np.sum([boo(t, k, i, j) for t in xrange(n - k)]) / n
     ccvf = np.array([c(k, 0, 1) for k in xrange(nlags + 1)])
     return  ccvf / np.sqrt(c(0, 0, 0) * c(0, 1, 1))
+
+def ewma(x, com):   
+    alpha = 1.0 / (1 + com)
+    
+    def item(i):
+        return x[i] if i == 0 else alpha * x[i] + (1 - alpha) * item(i - 1)
+    
+    return np.array([item(n) for n in range(len(x))])
