@@ -28,15 +28,16 @@ class Classifier:
         X = self.preprocess(X)
         
         SW = np.zeros((D, D))
+        aaT = lambda a: np.outer(a, a)
         
         for c in range(C):
             X_c = X[y == c]
             mu = np.mean(X_c, axis = 0)
-            SW += sum(np.outer(x, mu) for x in X_c)
+            for x in X_c:
+                SW += aaT(x - mu)
             mus.append(mu)
             
         w = inv(SW).dot(mus[1] - mus[0])
-            
         self.theta = w0, w
             
     def predict_log_proba(self, X):
