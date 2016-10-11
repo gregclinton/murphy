@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from scipy.special import expit
+import tensorflow
 
 class Classifier:
     '''
@@ -17,6 +18,30 @@ class Classifier:
         return (X - self.mean) / np.sqrt(np.diag(self.cov))
         
     def fit(self, X, y):
+        N, D = X.shape
+        C = len(np.unique(y))
+
+        X = X.astype(float)
+        self.mean = np.mean(X, axis = 0)
+        self.cov = np.cov(X, ddof = 0, rowvar = False)
+        
+        X = self.preprocess(X)
+        
+        def nll(w):
+            muw = mu(w)
+            return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
+
+        ybar = np.mean(y)
+        w0 = np.log(ybar / (1 - ybar))
+        mu = lambda w: expit(w0 + X.dot(w))
+
+        f0 = nll
+        f1 = lambda w: f0(w) + self.penalty * w.dot(w)
+
+        w = minimize(f1, [0] * D).x
+        self.theta = w0, w
+
+    def xfit(self, X, y):
         N, D = X.shape
         C = len(np.unique(y))
 
