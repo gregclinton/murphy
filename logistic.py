@@ -26,19 +26,32 @@ class Classifier:
         self.cov = np.cov(X, ddof = 0, rowvar = False)
         
         X = self.preprocess(X)
+        ybar = np.mean(y)
+        w0 = np.log(ybar / (1 - ybar))
         
+        xxx = tf.placeholder(tf.float32, [None, 784])
+        yyy = tf.placeholder(tf.float32, [None, 10])
+        w = tf.Variable(tf.zeros([784, 10]))
+
+        
+        
+        with tf.Session() as sess:
+            sess.run(tf.initialize_all_variables())
+            w = sess.run(w)
+
         def nll(w):
             muw = mu(w)
             return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
 
-        ybar = np.mean(y)
-        w0 = np.log(ybar / (1 - ybar))
         mu = lambda w: expit(w0 + X.dot(w))
 
         f0 = nll
         f1 = lambda w: f0(w) + self.penalty * w.dot(w)
 
         w = minimize(f1, [0] * D).x
+
+
+
         self.theta = w0, w
 
     def xfit(self, X, y):
