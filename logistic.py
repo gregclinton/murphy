@@ -31,7 +31,7 @@ class Classifier:
         
         xxx = tf.placeholder(tf.float32, [None, None])
         yyy = tf.placeholder(tf.float32, [None, 1])
-        w = tf.Variable(tf.zeros([784, 10]))
+        w = tf.Variable(tf.zeros([D, 1]))
 
         mu = tf.sigmoid(tf.matmul(xxx, w) + w0)
         nll = tf.reduce_mean(-tf.reduce_sum(yyy * tf.log(mu), 1))
