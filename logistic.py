@@ -35,8 +35,8 @@ class Classifier:
         mu = tf.sigmoid(tf.matmul(xxx, w) + w0)
 
         pred = tf.nn.softmax(tf.matmul(xxx, w) + w0)
-        cost = tf.reduce_mean(-tf.reduce_sum(yyy * tf.log(pred), 1))
-        optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(cost)        
+        nll = tf.reduce_mean(-tf.reduce_sum(yyy * tf.log(pred), 1))
+        optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(nll)        
         
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
@@ -44,10 +44,8 @@ class Classifier:
             w = sess.run(w)
 
         def nll(w):
-            muw = mu(w)
+            muw = expit(w0 + X.dot(w))
             return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
-
-        mu = lambda w: expit(w0 + X.dot(w))
         
         w = minimize(nll, [0] * D).x
 
