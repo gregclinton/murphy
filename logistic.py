@@ -29,24 +29,18 @@ class Classifier:
         ybar = np.mean(y)
         w0 = np.log(ybar / (1 - ybar))
 
-        def nll(w):
-            muw = expit(w0 + X.dot(w))
-            return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
-        
-        w = minimize(nll, [0] * D).x
-        
         X = tf.constant(X)
         y = tf.constant(y)
-        ww = tf.Variable(tf.zeros([D, 1], dtype=tf.float64))
+        w = tf.Variable(tf.zeros([D, 1], dtype = tf.float64))
 
-        mu = tf.sigmoid(tf.matmul(X, ww) + w0)
-        nll = tf.reduce_mean(-tf.reduce_sum(y * tf.log(mu), 1))
+        mu = tf.sigmoid(tf.matmul(X, w) + w0)
+        nll = -tf.reduce_sum(y * tf.log(mu) + (1 - y) * tf.log(1 - mu))
         optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(nll)        
         
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
-            # sess.run(optimizer, feed_dict = {xxx: X, yyy: y})
-            # w = sess.run(w)
+            sess.run(optimizer)
+            w = sess.run(w)
 
         self.theta = w0, w
 
