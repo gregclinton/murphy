@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from scipy.special import expit
-import tensorflow
+import tensorflow as tf
 
 class Classifier:
     '''
@@ -29,14 +29,18 @@ class Classifier:
         ybar = np.mean(y)
         w0 = np.log(ybar / (1 - ybar))
         
-        xxx = tf.placeholder(tf.float32, [None, 784])
-        yyy = tf.placeholder(tf.float32, [None, 10])
+        xxx = tf.placeholder(tf.float32, [None, None])
+        yyy = tf.placeholder(tf.float32, [None, 1])
         w = tf.Variable(tf.zeros([784, 10]))
+        mu = tf.sigmoid(tf.matmul(xxx, w) + w0)
 
-        
+        pred = tf.nn.softmax(tf.matmul(xxx, w) + w0)
+        cost = tf.reduce_mean(-tf.reduce_sum(yyy * tf.log(pred), 1))
+        optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(cost)        
         
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
+            # sess.run(optimizer, feed_dict = {xxx: X, yyy: y})
             w = sess.run(w)
 
         def nll(w):
