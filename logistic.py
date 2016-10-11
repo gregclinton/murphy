@@ -48,11 +48,8 @@ class Classifier:
             return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
 
         mu = lambda w: expit(w0 + X.dot(w))
-
-        f0 = nll
-        f1 = lambda w: f0(w) + self.penalty * w.dot(w)
-
-        w = minimize(f1, [0] * D).x
+        
+        w = minimize(nll, [0] * D).x
 
 
 
