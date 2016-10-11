@@ -28,27 +28,25 @@ class Classifier:
         X = self.preprocess(X)
         ybar = np.mean(y)
         w0 = np.log(ybar / (1 - ybar))
-        
-        xxx = tf.placeholder(tf.float32, [None, None])
-        yyy = tf.placeholder(tf.float32, [None, 1])
-        w = tf.Variable(tf.zeros([D, 1]))
-
-        mu = tf.sigmoid(tf.matmul(xxx, w) + w0)
-        nll = tf.reduce_mean(-tf.reduce_sum(yyy * tf.log(mu), 1))
-        optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(nll)        
-        
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-            # sess.run(optimizer, feed_dict = {xxx: X, yyy: y})
-            w = sess.run(w)
 
         def nll(w):
             muw = expit(w0 + X.dot(w))
             return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
         
         w = minimize(nll, [0] * D).x
+        
+        X = tf.constant(X)
+        y = tf.constant(y)
+        ww = tf.Variable(tf.zeros([D, 1], dtype=tf.float64))
 
-
+        mu = tf.sigmoid(tf.matmul(X, ww) + w0)
+        nll = tf.reduce_mean(-tf.reduce_sum(y * tf.log(mu), 1))
+        optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(nll)        
+        
+        with tf.Session() as sess:
+            sess.run(tf.initialize_all_variables())
+            # sess.run(optimizer, feed_dict = {xxx: X, yyy: y})
+            # w = sess.run(w)
 
         self.theta = w0, w
 
