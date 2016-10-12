@@ -16,34 +16,8 @@ class Classifier:
         # see sklearn.preprocessing.scale
         X = X.astype(float)
         return (X - self.mean) / np.sqrt(np.diag(self.cov))
-        
+
     def fit(self, X, y):
-        N, D = X.shape
-        C = len(np.unique(y))
-
-        X = X.astype(float)
-        y = y.reshape(N, 1)
-
-        self.mean = np.mean(X, axis = 0)
-        self.cov = np.cov(X, ddof = 0, rowvar = False)
-
-        X = self.preprocess(X)
-        ybar = np.mean(y)
-        w0 = np.log(ybar / (1 - ybar))
-
-        w = tf.Variable(0.1 * tf.ones([D, 1], dtype = tf.float64))
-        eta = tf.matmul(X, w) + w0
-        nll = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(eta, y))
-        optimizer = tf.train.GradientDescentOptimizer(0.001).minimize(nll)
-
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-            for i in range(10000):
-                sess.run(optimizer)
-            self.theta = w0, sess.run(w).ravel()
-            print(self.theta[1])
-
-    def xfit(self, X, y):
         N, D = X.shape
         C = len(np.unique(y))
 
@@ -54,25 +28,39 @@ class Classifier:
         X = self.preprocess(X)
         
         if C == 2:
-            def nll(w):
-                muw = mu(w)
-                return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
-
             ybar = np.mean(y)
             w0 = np.log(ybar / (1 - ybar))
-            mu = lambda w: expit(w0 + X.dot(w))
-            S = lambda w, mu: np.diag(mu * (1 - mu))
-            
-            f0 = nll
-            g0 = lambda w: X.T.dot(mu(w) - y)
-            H0 = lambda w: X.T.dot(S(w, mu(w))).dot(X)
-            
-            f1 = lambda w: f0(w) + self.penalty * w.dot(w)
-            g1 = lambda w: g0(w) + 2 * self.penalty * w
-            H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
-            
-            w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
-            self.theta = w0, w
+
+            if True:
+                y = y.reshape(N, 1)
+                w = tf.Variable(tf.zeros([D, 1], dtype = tf.float64))
+                eta = tf.matmul(X, w) + w0
+                nll = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(eta, y))
+                optimizer = tf.train.GradientDescentOptimizer(0.001).minimize(nll)
+
+                with tf.Session() as sess:
+                    sess.run(tf.initialize_all_variables())
+                    for i in range(1000):
+                        sess.run(optimizer)
+                    self.theta = w0, sess.run(w).ravel()            
+            else:
+                def nll(w):
+                    muw = mu(w)
+                    return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
+
+                mu = lambda w: expit(w0 + X.dot(w))
+                S = lambda w, mu: np.diag(mu * (1 - mu))
+
+                f0 = nll
+                g0 = lambda w: X.T.dot(mu(w) - y)
+                H0 = lambda w: X.T.dot(S(w, mu(w))).dot(X)
+
+                f1 = lambda w: f0(w) + self.penalty * w.dot(w)
+                g1 = lambda w: g0(w) + 2 * self.penalty * w
+                H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
+
+                w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
+                self.theta = w0, w
         else:
             Y = np.zeros((N, C))
             for i in range(N):
