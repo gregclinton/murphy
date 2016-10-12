@@ -31,16 +31,17 @@ class Classifier:
         ybar = np.mean(y)
         w0 = np.log(ybar / (1 - ybar))
 
-        one = tf.ones([N, 1], dtype = tf.float64)        
-        w = tf.Variable(tf.zeros([D, 1], dtype = tf.float64))
-        mu = tf.sigmoid(tf.matmul(X, w) + w0 * one)
-        nll = -tf.reduce_sum(y * tf.log(mu) + (one - y) * tf.log(one - mu))
-        optimizer = tf.train.GradientDescentOptimizer(0.1).minimize(nll)        
+        w = tf.Variable(0.1 * tf.ones([D, 1], dtype = tf.float64))
+        eta = tf.matmul(X, w) + w0
+        nll = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(eta, y))
+        optimizer = tf.train.GradientDescentOptimizer(0.001).minimize(nll)
 
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
-            sess.run(optimizer)
-            self.theta = w0, sess.run(w)
+            for i in range(10000):
+                sess.run(optimizer)
+            self.theta = w0, sess.run(w).ravel()
+            print(self.theta[1])
 
     def xfit(self, X, y):
         N, D = X.shape
@@ -108,7 +109,6 @@ class Classifier:
     def predict_proba(self, X):
         X = self.preprocess(X)
         w0, w = self.theta
-        print w
         if w.ndim == 2:
             return softmax(X.dot(w))
         else:
