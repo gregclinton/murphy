@@ -28,16 +28,21 @@ class Classifier:
         X = self.preprocess(X)
         ybar = np.mean(y)
         w0 = np.log(ybar / (1 - ybar))
+        w0 = (np.ones(N, dtype = np.float64) * w0).reshape(N, 1)
+        
+        XX = tf.placeholder(tf.float64, X.shape)
+        yy = tf.placeholder(tf.float64, y.shape)
+        ww00 = tf.placeholder(tf.float64, w0.shape)
         
         w = tf.Variable(tf.zeros([D, 1], dtype = tf.float64))
-        mu = tf.sigmoid(tf.matmul(X, w) + w0)
-        nll = -tf.reduce_sum(y * tf.log(mu) + (1 - y) * tf.log(1 - mu))
+        mu = tf.sigmoid(tf.matmul(XX, w) + ww00)
+        nll = -tf.reduce_sum(yy * tf.log(mu) + (1 - yy) * tf.log(1 - mu))
         optimizer = tf.train.GradientDescentOptimizer(0.1).minimize(nll)        
         
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
-            sess.run(optimizer)
-            self.theta = w0, sess.run(w)
+            sess.run(optimizer, feed_dict = {XX: X, yy: y, ww00: w0})
+            self.theta = sess.run([ww00, w])
 
     def xfit(self, X, y):
         N, D = X.shape
