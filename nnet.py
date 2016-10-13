@@ -30,10 +30,14 @@ def rms(cost, params, lr = 0.001, rho = 0.9, epsilon = 1e-6):
     return updates
 
 class Classifier:
+    def __init__(self, H = 625, train_iterations = 1):
+        self.H = H
+        self.train_iterations = train_iterations
+
     def fit(self, X, Y):
         N, D = X.shape
         N, C = Y.shape
-        H = 250
+        H = self.H
 
         XX = T.fmatrix()
         YY = T.fmatrix()
@@ -53,7 +57,7 @@ class Classifier:
         updates = sgd(cost, params)
         train = theano.function([XX, YY], [], updates = updates, allow_input_downcast = True)
         
-        for i in range(1):
+        for _ in range(self.train_iterations):
             for start, end in zip(range(0, N, 128), range(128, N, 128)):
                 train(X[start : end], Y[start : end])        
         self.theta = w_h, w_o
