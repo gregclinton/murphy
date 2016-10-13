@@ -1,3 +1,4 @@
+# https://keras.io/
 # https://www.youtube.com/watch?v=S75EdAcXHKk
 # https://github.com/Newmu/Theano-Tutorials
 
@@ -50,14 +51,27 @@ def rms(cost, params, lr = 0.001, rho = 0.9, epsilon = 1e-6):
 
     return updates
 
-def train(X, Y, cost, updates, trX, teX, trY, teY):
-    train = theano.function(inputs = [X, Y], outputs = outputs, updates = updates, allow_input_downcast = True)
-    predict = theano.function(inputs = [X], outputs = outputs, allow_input_downcast = True)
+class Classifier:
+    def fit(self, X, Y):
+        N, D = X.shape
+        N, C = Y.shape
+        H = 250
 
-    for i in range(100):
-        for start, end in zip(range(0, len(trX), 128), range(128, len(trX), 128)):
-            train(trX[start : end], trY[start : end])
-            
-        sys.stdout.write(np.mean(np.argmax(teY, axis = 1) == predict(teX)))
-        sys.stdout.write(' ')
-        sys.stdout.flush()
+        XX = T.fmatrix()
+        YY = T.fmatrix()
+
+        w_h = weights((D, H))
+        w_o = weights((H, C))
+        h = T.nnet.sigmoid(T.dot(XX, w_h))
+
+        py_x = T.nnet.softmax(T.dot(h, w_o))
+        y_x = T.argmax(py_x, axis = 1)
+
+        cost = T.mean(T.nnet.categorical_crossentropy(py_x, YY))
+        params = [w_h, w_o]
+        updates = sgd(cost, params)        
+        theano.function([XX, YY], [], updates = updates, allow_input_downcast = True)(X, Y)
+        self.theta = w_h, w_o
+
+    def predict(self, X):
+        w_h, w_o = self.theta
