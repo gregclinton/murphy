@@ -2,34 +2,12 @@
 # https://www.youtube.com/watch?v=S75EdAcXHKk
 # https://github.com/Newmu/Theano-Tutorials
 
-import theano
-import theano.tensor as T
-from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 import numpy as np
-import sys
+import theano.tensor as T
+from softmax import softmax
 
-srng = RandomStreams()
+sgd_update = lambda p, g, lr: p - lr * g
 
-def floatX(X):
-    return np.asarray(X, dtype = theano.config.floatX)
-
-def weights(shape):
-    return theano.shared(floatX(np.random.randn(*shape) * 0.01))
-
-def rectify(X):
-    return T.maximum(X, 0.0)
-
-def softmax(X):
-    e_x = T.exp(X - X.max(axis = 1).dimshuffle(0, 'x'))
-    return e_x / e_x.sum(axis = 1).dimshuffle(0, 'x')
-
-def dropout(X, p):
-    if (p > 0):
-        X *= srng.binomial(X.shape, p = 1 - p, dtype = theano.config.floatX)
-        return X / (1 - p)
-    else:
-        return X
-    
 def sgd(cost, params, lr = 0.05):
     grads = T.grad(cost, params)
     updates = []
@@ -60,8 +38,11 @@ class Classifier:
         XX = T.fmatrix()
         YY = T.fmatrix()
 
-        w_h = weights((D, H))
-        w_o = weights((H, C))
+        floatX = lambda X: np.asarray(X, dtype = theano.config.floatX)
+        weights = lambda n, d: theano.shared(floatX(np.random.randn(n, d) * 0.01))
+        
+        w_h = weights(D, H)
+        w_o = weights(H, C)
         h = T.nnet.sigmoid(T.dot(XX, w_h))
 
         py_x = T.nnet.softmax(T.dot(h, w_o))
@@ -69,9 +50,16 @@ class Classifier:
 
         cost = T.mean(T.nnet.categorical_crossentropy(py_x, YY))
         params = [w_h, w_o]
-        updates = sgd(cost, params)        
-        theano.function([XX, YY], [], updates = updates, allow_input_downcast = True)(X, Y)
+        updates = sgd(cost, params)
+        train = theano.function([XX, YY], [], updates = updates, allow_input_downcast = True)
+        
+        for i in range(1):
+            for start, end in zip(range(0, N, 128), range(128, N, 128)):
+                train(X[start : end], Y[start : end])        
         self.theta = w_h, w_o
 
     def predict(self, X):
         w_h, w_o = self.theta
+        w_h = w_h.get_value()
+        w_o = w_o.get_value()
+        return np.argmax(X.dot(w_h).dot(w_o), axis = 1)
