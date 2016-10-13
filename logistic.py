@@ -3,6 +3,7 @@ from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from scipy.special import expit
 import tensorflow as tf
+from sklearn import preprocessing 
 
 class Classifier:
     '''
@@ -12,26 +13,18 @@ class Classifier:
     def __init__(self, C = 1):
         self.penalty = 0.0 / C
         
-    def preprocess(self, X):
-        # see sklearn.preprocessing.scale
-        X = X.astype(float)
-        return (X - self.mean) / np.sqrt(np.diag(self.cov))
-
     def fit(self, X, y):
         N, D = X.shape
         C = len(np.unique(y))
 
-        X = X.astype(float)
-        self.mean = np.mean(X, axis = 0)
-        self.cov = np.cov(X, ddof = 0, rowvar = False)
-        
-        X = self.preprocess(X)
+        self.scaler = preprocessing.StandardScaler().fit(X)
+        X = self.scaler.transform(X)
         
         if C == 2:
             ybar = np.mean(y)
             w0 = np.log(ybar / (1 - ybar))
 
-            if True:
+            if False:
                 y = y.reshape(N, 1)
                 w = tf.Variable(tf.zeros([D, 1], dtype = tf.float64))
                 eta = tf.matmul(X, w) + w0
@@ -95,7 +88,7 @@ class Classifier:
         return np.log(self.predict_proba(X))
 
     def predict_proba(self, X):
-        X = self.preprocess(X)
+        X = self.scaler.transform(X)
         w0, w = self.theta
         if w.ndim == 2:
             return softmax(X.dot(w))
