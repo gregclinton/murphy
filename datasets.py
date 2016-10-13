@@ -115,7 +115,10 @@ def mnist():
     # https://github.com/Newmu/Theano-Tutorials
     
     def read_bytes(name):
-        with gzip.open('/home/greg/Downloads/' + name + '-ubyte.gz', 'rb') as f:
+        downloads = '/home/greg/Downloads/'
+        downloads = '/users/gregc/Downloads/'
+        
+        with gzip.open(downloads + name + '-ubyte.gz', 'rb') as f:
             return np.frombuffer(f.read(), dtype = np.uint8)
 
     def read_images(name, n):
