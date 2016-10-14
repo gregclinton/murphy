@@ -8,9 +8,9 @@ import theano.tensor as T
 from softmax import softmax
 
 class Classifier:
-    def __init__(self, H = 625, train_iterations = 1):
+    def __init__(self, H = 625, epochs = 1):
         self.H = H
-        self.train_iterations = train_iterations
+        self.epochs = epochs
 
     def fit(self, X, Y):
         N, D = X.shape
@@ -36,7 +36,7 @@ class Classifier:
         updates = [[p, p - g * learning_rate] for p, g in zip(params, grads)]
         train = theano.function([XX, YY], updates = updates, allow_input_downcast = True)
         
-        for _ in range(self.train_iterations):
+        for _ in range(self.epochs):
             for start, end in zip(range(0, N, 128), range(128, N, 128)):
                 train(X[start : end], Y[start : end])        
         self.theta = w_h.get_value(), w_o.get_value()
