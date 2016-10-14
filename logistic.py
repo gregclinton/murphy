@@ -2,7 +2,6 @@ import numpy as np
 from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from scipy.special import expit
-import tensorflow as tf
 from sklearn import preprocessing 
 
 class Classifier:
@@ -24,36 +23,23 @@ class Classifier:
             ybar = np.mean(y)
             w0 = np.log(ybar / (1 - ybar))
 
-            if False:
-                y = y.reshape(N, 1)
-                w = tf.Variable(tf.zeros([D, 1], dtype = tf.float64))
-                eta = tf.matmul(X, w) + w0
-                nll = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(eta, y))
-                optimizer = tf.train.GradientDescentOptimizer(0.001).minimize(nll)
+            def nll(w):
+                muw = mu(w)
+                return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
 
-                with tf.Session() as sess:
-                    sess.run(tf.initialize_all_variables())
-                    for i in range(1000):
-                        sess.run(optimizer)
-                    self.theta = w0, sess.run(w).ravel()            
-            else:
-                def nll(w):
-                    muw = mu(w)
-                    return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
+            mu = lambda w: expit(w0 + X.dot(w))
+            S = lambda w, mu: np.diag(mu * (1 - mu))
 
-                mu = lambda w: expit(w0 + X.dot(w))
-                S = lambda w, mu: np.diag(mu * (1 - mu))
+            f0 = nll
+            g0 = lambda w: X.T.dot(mu(w) - y)
+            H0 = lambda w: X.T.dot(S(w, mu(w))).dot(X)
 
-                f0 = nll
-                g0 = lambda w: X.T.dot(mu(w) - y)
-                H0 = lambda w: X.T.dot(S(w, mu(w))).dot(X)
+            f1 = lambda w: f0(w) + self.penalty * w.dot(w)
+            g1 = lambda w: g0(w) + 2 * self.penalty * w
+            H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
 
-                f1 = lambda w: f0(w) + self.penalty * w.dot(w)
-                g1 = lambda w: g0(w) + 2 * self.penalty * w
-                H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
-
-                w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
-                self.theta = w0, w
+            w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
+            self.theta = w0, w
         else:
             Y = np.zeros((N, C))
             for i in range(N):

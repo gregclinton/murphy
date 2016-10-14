@@ -5,6 +5,9 @@ import gzip
 import requests
 import json
 
+downloads = '/users/gregc/Downloads/'
+downloads = '/home/greg/Downloads/'
+
 def iris():
     url = 'https://raw.githubusercontent.com/uiuc-cse/data-fa14/gh-pages/data/iris.csv'
     data = pd.read_csv(url)
@@ -114,10 +117,7 @@ def mnist():
     # https://www.youtube.com/watch?v=S75EdAcXHKk
     # https://github.com/Newmu/Theano-Tutorials
     
-    def read_bytes(name):
-        downloads = '/home/greg/Downloads/'
-        downloads = '/users/gregc/Downloads/'
-        
+    def read_bytes(name):        
         with gzip.open(downloads + name + '-ubyte.gz', 'rb') as f:
             return np.frombuffer(f.read(), dtype = np.uint8)
 
