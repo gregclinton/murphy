@@ -115,8 +115,8 @@ def mnist():
     # https://github.com/Newmu/Theano-Tutorials
     
     def read_bytes(name):
-        downloads = '/users/gregc/Downloads/'
         downloads = '/home/greg/Downloads/'
+        downloads = '/users/gregc/Downloads/'
         
         with gzip.open(downloads + name + '-ubyte.gz', 'rb') as f:
             return np.frombuffer(f.read(), dtype = np.uint8)
