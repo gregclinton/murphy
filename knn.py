@@ -9,8 +9,9 @@ class Classifier:
 
     def predict(self, XX):
         X, y = self.theta
-        aTa = lambda a: np.dot(a, a)
+        aTa = lambda a: np.dot(a.T, a)
         dist = lambda x, y: aTa(x - y)
-        mode = lambda a: np.argmax(np.bincount(a.astype(int)))
-        pred = lambda x: mode(y[np.argsort([dist(x, xx) for xx in X])[0 : self.k]])
+        def pred(x):
+            closest = np.argsort([dist(x, xx) for xx in X])[0 : self.k]
+            return y[np.argmax(np.bincount(closest))]
         return np.array([pred(x) for x in XX])
