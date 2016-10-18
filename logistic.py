@@ -10,37 +10,36 @@ class CategoricalCrossEntropyLoss:
         self.Y = Y
         self.penalty = 0.0
 
-    def mus(W):
-        return enumerate(softmax(X.dot(W)))
+    def mus(W, b):
+        return enumerate(softmax(self.X.dot(W, b)))
 
-    def shapes(self):
+    def parts(self, P):
         N, D = self.X.shape
         N, C = self.Y.shape
-        return N, D, C
-
-    def objective(self, W):
-        N, D, C = self.shapes()
+        W, b = P[:-D].reshape(D, C), P[-D:]
         V0_inv = self.penalty * np.eye(D)
-        logmu = lambda W: log_softmax(X.dot(W))
-        nll = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W))])
+        return W, b, C, V0_inv
+
+    def objective(self, P):
+        W, b, C, V0_inv = self.parts(P)
+        logmu = lambda W, b: log_softmax(X.dot(W, b))
+        nll = lambda W, b: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
         f0 = nll
-        f1 = lambda W: f0(W) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
-        return f1(W.reshape(D, C))
+        penalty =  0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
+        return f0(W, b) + penalty
 
-    def gradient(self, W):
-        N, D, C = self.shapes()
-        V0_inv = self.penalty * np.eye(D)
-        g0 = lambda W: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
-        g1 = lambda W: g0(W) + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
-        return g1(W.reshape(D, C))
+    def gradient(self, P):
+        W, b, C, V0_inv = self.parts(P)
+        g0 = lambda W, b: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
+        penalty = np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))
+        return (g0(W, b) + penalty).ravel()
 
-    def hessian(self, W):
-        N, D, C = self.shapes()
-        V0_inv = self.penalty * np.eye(D)
-        o =  lambda x: np.outer(x, x)
-        H0 = lambda W: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
-        H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
-        return H1(W.reshape(D, C))
+    def hessian(self, P):
+        W, b, C, V0_inv = self.parts(P)
+        o = lambda x: np.outer(x, x)
+        H0 = lambda W, b: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
+        penalty = np.kron(np.eye(C), V0_inv)
+        return H0(W, b) + penalty
     
 class Classifier:
     '''
@@ -54,13 +53,12 @@ class Classifier:
         N, D = X.shape
         C = len(np.unique(y))
 
-        self.scaler = preprocessing.StandardScaler().fit(X)
-        X = self.scaler.transform(X)
+        # self.scaler = preprocessing.StandardScaler().fit(X)
+        # X = self.scaler.transform(X)
+        ybar = np.mean(y)
+        w0 = np.log(ybar / (1 - ybar))
         
         if C == 2:
-            ybar = np.mean(y)
-            w0 = np.log(ybar / (1 - ybar))
-
             def nll(w):
                 muw = mu(w)
                 return -sum(y * np.log(muw) + (1 - y) * np.log(1 - muw))
@@ -82,37 +80,26 @@ class Classifier:
             Y = np.zeros((N, C))
             for i in range(N):
                 Y[i, y[i]] = 1
-            
-            nll = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W))])
+
             mu = lambda W: softmax(X.dot(W))
             logmu = lambda W: log_softmax(X.dot(W))
             mus = lambda W: enumerate(mu(W))
-            o = lambda x: np.outer(x, x)
-            
-            f0 = nll
-            g0 = lambda W: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
-            H0 = lambda W: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
 
+            f0 = nll = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W))])
             V0_inv = self.penalty * np.eye(D)
-            
             f1 = lambda W: f0(W) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
-            g1 = lambda W: g0(W) + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
-            H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
-
             fixup = lambda W: W.reshape(D, C)
-            
             f2 = lambda W: f1(fixup(W))
-            g2 = lambda W: g1(fixup(W))
-            H2 = lambda W: H1(fixup(W))
-                        
-            W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
+
+            # W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
+            W = minimize(f2, [0] * (D * C)).x
             self.theta = w0, fixup(W)
-            
+
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
 
     def predict_proba(self, X):
-        X = self.scaler.transform(X)
+        # X = self.scaler.transform(X)
         w0, w = self.theta
         if w.ndim == 2:
             return softmax(X.dot(w))
