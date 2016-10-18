@@ -4,13 +4,51 @@ from softmax import softmax, log_softmax
 from scipy.special import expit
 from sklearn import preprocessing 
 
+class CategoricalCrossEntropyLoss:
+    def __init__(self, X, Y):
+        self.X = X
+        self.Y = Y
+        self.penalty = 0.0
+
+    def mus(W):
+        return enumerate(softmax(X.dot(W)))
+
+    def shapes(self):
+        N, D = self.X.shape
+        N, C = self.Y.shape
+        return N, D, C
+
+    def objective(self, W):
+        N, D, C = self.shapes()
+        V0_inv = self.penalty * np.eye(D)
+        logmu = lambda W: log_softmax(X.dot(W))
+        nll = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W))])
+        f0 = nll
+        f1 = lambda W: f0(W) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
+        return f1(W.reshape(D, C))
+
+    def gradient(self, W):
+        N, D, C = self.shapes()
+        V0_inv = self.penalty * np.eye(D)
+        g0 = lambda W: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W)])
+        g1 = lambda W: g0(W) + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
+        return g1(W.reshape(D, C))
+
+    def hessian(self, W):
+        N, D, C = self.shapes()
+        V0_inv = self.penalty * np.eye(D)
+        o =  lambda x: np.outer(x, x)
+        H0 = lambda W: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W)])
+        H1 = lambda W: H0(W) + np.kron(np.eye(C), V0_inv)
+        return H1(W.reshape(D, C))
+    
 class Classifier:
     '''
     logistic regression classifier
     murphy p. 255
     '''
-    def __init__(self, C = 1):
-        self.penalty = 0.0 / C
+    def __init__(self):
+        self.penalty = 0.0
         
     def fit(self, X, y):
         N, D = X.shape
