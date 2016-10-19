@@ -35,17 +35,15 @@ def categorical_svm_loss(X, Y, decode, penalty):
 
     def loss(P):
         W, b = decode(P)
-        s = lambda i: X[i, :].dot(W) + b
+        s = X.dot(W)
         
         def L(i):
-            syi = s(i)
-            return sum([max(0, s(j) - syi + 1) for j in range(N) if j != i])
+            syi = np.argmax(Y[i])
+            return sum([max(0, s[i, j] - s[i, syi] + 1) for j in range(C) if j != i])
         
         return sum([L(i) for i in range(N)])
     
-    grad, hess = None, None
-    
-    return loss, grad, hess
+    return loss, None, None
 
 def one_hot(y):
     y = np.array(y)
@@ -68,7 +66,7 @@ class Classifier:
         # X = self.scaler.transform(X)
 
         decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
-        loss, grad, hess = categorical_cross_entropy_loss(X, Y, decode, penalty)
+        loss, grad, hess = categorical_svm_loss(X, Y, decode, penalty)
         P = minimize(loss, [0] * ((D + 1) * C)).x
         # P = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
         self.theta = decode(P)
