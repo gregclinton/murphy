@@ -20,7 +20,7 @@ def categorical_cross_entropy_loss(X, Y, penalty):
     def gradient(P):
         W, b = decode(P)
         grad = sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
-        return grad + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
+        return (grad + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))).ravel()
 
     def hessian(P):
         W, b = decode(P)
@@ -50,9 +50,9 @@ class Classifier:
         # self.scaler = preprocessing.StandardScaler().fit(X)
         # X = self.scaler.transform(X)
 
-        # W = minimize(f2, [0] * ((D + 1) * C), method = 'Newton-CG', jac = g2, hess = H2).x
-        loss, gradient, hessian = categorical_cross_entropy_loss(X, Y, penalty)
+        loss, grad, hess = categorical_cross_entropy_loss(X, Y, penalty)
         W = minimize(loss, [0] * ((D + 1) * C)).x
+        # W = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
         self.theta = W[:-C].reshape(D, C), W[-C:]
 
     def predict_log_proba(self, X):
