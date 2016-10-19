@@ -65,7 +65,7 @@ class Classifier:
         # self.scaler = preprocessing.StandardScaler().fit(X)
         # X = self.scaler.transform(X)
 
-        decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
+        decode = lambda params: (params[:-C].reshape(D, C), params[-C:])
         loss, grad, hess = loss(X, Y, decode, self.eta, penalty)
         params = [0] * (D + 1) * C
         
