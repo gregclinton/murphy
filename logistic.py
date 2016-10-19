@@ -1,37 +1,32 @@
 import numpy as np
 from scipy.optimize import minimize
 from softmax import softmax, log_softmax
-from scipy.special import expit
 from sklearn import preprocessing 
 
 def categorical_cross_entropy_loss(X, Y, penalty = 0.0):
     N, D = X.shape
     N, C = Y.shape
 
-    eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
-    mu = lambda W, b: softmax(eta(W, b))
-    logmu = lambda W, b: log_softmax(eta(W, b))
-    mus = lambda W, b: enumerate(mu(W, b))
+    mus = lambda W, b: enumerate(softmax(eta(W, b)))
     decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
     V0_inv = penalty * np.eye(D)
 
     def objective(P):
         W, b = decode(P)
-        f0 = -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
-        return f0 + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
+        eta = X.dot(W) + np.tile(b, (N, 1))
+        nll = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta))])
+        return nll + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
     def gradient(P):
         W, b = decode(P)
-        g0 = lambda W, b: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
-        penalty = np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))
-        return (g0(W, b) + penalty).ravel()
+        grad = sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
+        return grad + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1)).ravel()
 
     def hessian(P):
         W, b = decode(P)
         o = lambda x: np.outer(x, x)
-        H0 = lambda W, b: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
-        penalty = np.kron(np.eye(C), V0_inv)
-        return H0(W, b) + penalty
+        hess = sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
+        return hess + np.kron(np.eye(C), V0_inv)
     
     return objective, gradient, hessian
 
@@ -66,8 +61,8 @@ class Classifier:
     def predict_proba(self, X):
         # X = self.scaler.transform(X)
         N, D = X.shape
-        w, w0 = self.theta
-        return softmax(X.dot(w) + np.tile(w0, (N, 1)))
+        W, b = self.theta
+        return softmax(X.dot(W) + np.tile(b, (N, 1)))
 
     def predict(self, X):
         p = self.predict_proba(X)
