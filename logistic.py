@@ -40,6 +40,13 @@ class CategoricalCrossEntropyLoss:
         H0 = lambda W, b: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
         penalty = np.kron(np.eye(C), V0_inv)
         return H0(W, b) + penalty
+
+def one_hot(y):
+    N, C = len(y), len(np.unique(y))
+    Y = np.zeros((N, C))
+    for i in range(N):
+        Y[i, y[i]] = 1
+    return Y
     
 class Classifier:
     '''
@@ -77,23 +84,27 @@ class Classifier:
             w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
             self.theta = w0, w
         else:
-            Y = np.zeros((N, C))
-            for i in range(N):
-                Y[i, y[i]] = 1
+            Y = one_hot(y)
+            w0 = np.zeros(C)
 
-            mu = lambda W: softmax(X.dot(W))
-            logmu = lambda W: log_softmax(X.dot(W))
-            mus = lambda W: enumerate(mu(W))
+            eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
+            
+            mu = lambda W, b: softmax(eta(W, b))
+            logmu = lambda W, b: log_softmax(eta(W, b))
+            mus = lambda W, b: enumerate(mu(W, b))
 
-            f0 = nll = lambda W: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W))])
+            f0 = nll = lambda W, b: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
             V0_inv = self.penalty * np.eye(D)
-            f1 = lambda W: f0(W) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
-            fixup = lambda W: W.reshape(D, C)
-            f2 = lambda W: f1(fixup(W))
+            f1 = lambda W, b: f0(W, b) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
+            
+            def f2(P):
+                W, b = P[:-C].reshape(D, C), P[-C:]
+                b *= 0
+                return f1(W, b)
 
             # W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
-            W = minimize(f2, [0] * (D * C)).x
-            self.theta = w0, fixup(W)
+            W = minimize(f2, [0] * ((D + 1) * C)).x
+            self.theta = w0, W[:-C].reshape(D, C)
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
