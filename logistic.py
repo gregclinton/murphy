@@ -35,8 +35,12 @@ def categorical_svm_loss(X, Y, decode, penalty):
 
     def loss(P):
         W, b = decode(P)
-        s = lambda: X.dot(W) + np.tile(b, (N, 1))
-        L = lambda i: sum([max(0, s[j] - s[i] + 1) for j in range(N) if j != i])
+        s = lambda i: X[i, :].dot(W) + b
+        
+        def L(i):
+            syi = s(i)
+            return sum([max(0, s(j) - syi + 1) for j in range(N) if j != i])
+        
         return sum([L(i) for i in range(N)])
     
     grad, hess = None, None
