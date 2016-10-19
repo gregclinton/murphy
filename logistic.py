@@ -65,9 +65,10 @@ class Classifier:
         # self.scaler = preprocessing.StandardScaler().fit(X)
         # X = self.scaler.transform(X)
 
-        decode = lambda params: (params[:-C].reshape(D, C), params[-C:])
-        loss, grad, hess = loss(X, Y, decode, self.eta, penalty)
         params = [0] * (D + 1) * C
+        decode = lambda params: (params[:-C].reshape(D, C), params[-C:])
+
+        loss, grad, hess = loss(X, Y, decode, self.eta, penalty)
         
         if hess != None:
             params = minimize(loss, params, method = 'Newton-CG', jac = grad, hess = hess).x
