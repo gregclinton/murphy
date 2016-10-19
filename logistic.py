@@ -33,14 +33,11 @@ def categorical_svm_loss(X, Y, decode, penalty):
     N, D = X.shape
     N, C = Y.shape
 
-    eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
-    mus = lambda W, b: enumerate(softmax(eta(W, b)))
-
     def loss(P):
         W, b = decode(P)
-        Li = lambda i: sum([np.max(0, sj - syi + 1) for in enumerate((eta(W, b))) if j != yi])
-        loss = -sum([np.max(0, sj - syi + 1) for in enumerate((eta(W, b))) if j != yi])
-        return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
+        s = lambda: X.dot(W) + np.tile(b, (N, 1))
+        L = lambda i: sum([max(0, s[j] - s[i] + 1) for j in range(N) if j != i])
+        return sum([L(i) for i in range(N)])
     
     grad, hess = None, None
     
