@@ -38,8 +38,8 @@ def categorical_svm_loss(X, Y, decode, penalty):
         s = X.dot(W)
         
         def L(i):
-            syi = np.argmax(Y[i])
-            return sum([max(0, s[i, j] - s[i, syi] + 1) for j in range(C) if j != i])
+            yi = np.argmax(Y[i])
+            return sum([max(0, s[i, j] - s[i, yi] + 1) for j in range(C) if j != i])
         
         return sum([L(i) for i in range(N)])
     
