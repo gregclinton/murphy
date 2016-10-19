@@ -3,18 +3,18 @@ from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from sklearn import preprocessing 
 
-def categorical_cross_entropy_loss(X, Y, penalty = 0.0):
+def categorical_cross_entropy_loss(X, Y, penalty):
     N, D = X.shape
     N, C = Y.shape
 
+    eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
     mus = lambda W, b: enumerate(softmax(eta(W, b)))
     decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
     V0_inv = penalty * np.eye(D)
 
     def objective(P):
         W, b = decode(P)
-        eta = X.dot(W) + np.tile(b, (N, 1))
-        nll = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta))])
+        nll = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(W, b)))])
         return nll + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
     def gradient(P):
@@ -51,7 +51,7 @@ class Classifier:
         # X = self.scaler.transform(X)
 
         # W = minimize(f2, [0] * ((D + 1) * C), method = 'Newton-CG', jac = g2, hess = H2).x
-        loss, gradient, hessian = categorical_cross_entropy_loss(X, Y)
+        loss, gradient, hessian = categorical_cross_entropy_loss(X, Y, penalty)
         W = minimize(loss, [0] * ((D + 1) * C)).x
         self.theta = W[:-C].reshape(D, C), W[-C:]
 
