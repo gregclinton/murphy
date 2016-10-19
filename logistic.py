@@ -52,7 +52,7 @@ class Classifier:
         decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
         loss, grad, hess = categorical_cross_entropy_loss(X, Y, decode, penalty)
         P = minimize(loss, [0] * ((D + 1) * C)).x
-        # W = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
+        # P = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
         self.theta = decode(P)
 
     def predict_log_proba(self, X):
