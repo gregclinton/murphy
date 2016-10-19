@@ -82,7 +82,7 @@ class Classifier:
             H1 = lambda w: H0(w) + 2 * self.penalty * np.eye(D)
 
             w = minimize(f1, [0] * D, method = 'Newton-CG', jac = g1, hess = H1).x
-            self.theta = w0, w
+            self.theta = w, w0
         else:
             Y = one_hot(y)
             w0 = np.zeros(C)
@@ -99,23 +99,23 @@ class Classifier:
             
             def f2(P):
                 W, b = P[:-C].reshape(D, C), P[-C:]
-                b *= 0
                 return f1(W, b)
 
-            # W = minimize(f2, [0] * (D * C), method = 'Newton-CG', jac = g2, hess = H2).x
+            # W = minimize(f2, [0] * ((D + 1) * C), method = 'Newton-CG', jac = g2, hess = H2).x
             W = minimize(f2, [0] * ((D + 1) * C)).x
-            self.theta = w0, W[:-C].reshape(D, C)
+            self.theta = W[:-C].reshape(D, C), W[-C:]
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
 
     def predict_proba(self, X):
         # X = self.scaler.transform(X)
-        w0, w = self.theta
+        N, D = X.shape
+        w, w0 = self.theta
         if w.ndim == 2:
-            return softmax(X.dot(w))
+            return softmax(X.dot(w) + np.tile(w0, (N, 1)))
         else:
-            return expit(w0 + X.dot(w))
+            return expit(X.dot(w) + w0)
 
     def predict(self, X):
         p = self.predict_proba(X)
