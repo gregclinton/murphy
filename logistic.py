@@ -12,23 +12,23 @@ def categorical_cross_entropy_loss(X, Y, penalty = 0.0):
     mu = lambda W, b: softmax(eta(W, b))
     logmu = lambda W, b: log_softmax(eta(W, b))
     mus = lambda W, b: enumerate(mu(W, b))
-
-    f0 = nll = lambda W, b: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
+    decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
     V0_inv = penalty * np.eye(D)
-    f1 = lambda W, b: f0(W, b) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
 
     def objective(P):
-        W, b = P[:-C].reshape(D, C), P[-C:]
+        W, b = decode(P)
+        f0 = nll = lambda W, b: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
+        f1 = lambda W, b: f0(W, b) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
         return f1(W, b)
 
-    def gradient(self, P):
-        W, b, C, V0_inv = self.parts(P)
+    def gradient(P):
+        W, b = decode(P)
         g0 = lambda W, b: sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
         penalty = np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))
         return (g0(W, b) + penalty).ravel()
 
-    def hessian(self, P):
-        W, b, C, V0_inv = self.parts(P)
+    def hessian(P):
+        W, b = decode(P)
         o = lambda x: np.outer(x, x)
         H0 = lambda W, b: sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
         penalty = np.kron(np.eye(C), V0_inv)
