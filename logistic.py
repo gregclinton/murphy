@@ -17,9 +17,8 @@ def categorical_cross_entropy_loss(X, Y, penalty = 0.0):
 
     def objective(P):
         W, b = decode(P)
-        f0 = nll = lambda W, b: -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
-        f1 = lambda W, b: f0(W, b) + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
-        return f1(W, b)
+        f0 = -sum([Y[i].dot(ll) for i, ll in enumerate(logmu(W, b))])
+        return f0 + 0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T])
 
     def gradient(P):
         W, b = decode(P)
