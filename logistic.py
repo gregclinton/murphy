@@ -29,6 +29,23 @@ def categorical_cross_entropy_loss(X, Y, decode, penalty):
     
     return loss, grad, hess
 
+def categorical_svm_loss(X, Y, decode, penalty):
+    N, D = X.shape
+    N, C = Y.shape
+
+    eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
+    mus = lambda W, b: enumerate(softmax(eta(W, b)))
+
+    def loss(P):
+        W, b = decode(P)
+        Li = lambda i: sum([np.max(0, sj - syi + 1) for in enumerate((eta(W, b))) if j != yi])
+        loss = -sum([np.max(0, sj - syi + 1) for in enumerate((eta(W, b))) if j != yi])
+        return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
+    
+    grad, hess = None, None
+    
+    return loss, grad, hess
+
 def one_hot(y):
     y = np.array(y)
     if y.ndim == 2:
