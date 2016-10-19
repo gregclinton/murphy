@@ -84,7 +84,6 @@ class Classifier:
 
     def predict_proba(self, X):
         # X = self.scaler.transform(X)
-        N, D = X.shape
         W, b = self.theta
         return softmax(self.eta(X, W, b))
 
