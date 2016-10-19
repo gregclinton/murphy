@@ -27,7 +27,8 @@ def categorical_cross_entropy_loss(X, Y, decode, penalty):
         hess = sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
         return hess + np.kron(np.eye(C), V0_inv)
     
-    return loss, grad, hess
+    # return loss, grad, hess
+    return loss, None, None
 
 def categorical_svm_loss(X, Y, decode, penalty):
     N, D = X.shape
@@ -67,8 +68,10 @@ class Classifier:
 
         decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
         loss, grad, hess = categorical_svm_loss(X, Y, decode, penalty)
-        P = minimize(loss, [0] * ((D + 1) * C)).x
-        # P = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
+        if hess != None:
+            P = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
+        else:
+            P = minimize(loss, [0] * ((D + 1) * C)).x
         self.theta = decode(P)
 
     def predict_log_proba(self, X):
