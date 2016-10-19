@@ -58,7 +58,7 @@ def one_hot(y):
         return Y
     
 class Classifier:
-    def fit(self, X, y, penalty = 0.0):
+    def fit(self, X, y, loss, penalty = 0.0):
         Y = one_hot(y)
         N, D = X.shape
         N, C = Y.shape
@@ -67,7 +67,8 @@ class Classifier:
         # X = self.scaler.transform(X)
 
         decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
-        loss, grad, hess = categorical_svm_loss(X, Y, decode, penalty)
+        loss, grad, hess = loss(X, Y, decode, penalty)
+        
         if hess != None:
             P = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
         else:
