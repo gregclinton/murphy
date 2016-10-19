@@ -6,11 +6,11 @@ from sklearn import preprocessing
 def categorical_cross_entropy_loss(X, Y, penalty):
     N, D = X.shape
     N, C = Y.shape
+    V0_inv = penalty * np.eye(D)
 
     eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
     mus = lambda W, b: enumerate(softmax(eta(W, b)))
     decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
-    V0_inv = penalty * np.eye(D)
 
     def objective(P):
         W, b = decode(P)
