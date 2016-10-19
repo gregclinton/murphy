@@ -11,18 +11,18 @@ def categorical_cross_entropy_loss(X, Y, decode, penalty):
     eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
     mus = lambda W, b: enumerate(softmax(eta(W, b)))
 
-    def loss(P):
-        W, b = decode(P)
+    def loss(params):
+        W, b = decode(params)
         loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(W, b)))])
         return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
-    def grad(P):
-        W, b = decode(P)
+    def grad(params):
+        W, b = decode(params)
         grad = sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
         return (grad + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))).ravel()
 
-    def hess(P):
-        W, b = decode(P)
+    def hess(params):
+        W, b = decode(params)
         o = lambda x: np.outer(x, x)
         hess = sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
         return hess + np.kron(np.eye(C), V0_inv)
@@ -34,8 +34,8 @@ def categorical_svm_loss(X, Y, decode, penalty):
     N, D = X.shape
     N, C = Y.shape
 
-    def loss(P):
-        W, b = decode(P)
+    def loss(params):
+        W, b = decode(params)
         s = X.dot(W) + np.tile(b, (N, 1))
         
         def L(i):
@@ -68,12 +68,13 @@ class Classifier:
 
         decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
         loss, grad, hess = loss(X, Y, decode, penalty)
+        params = [0] * (D + 1) * C
         
         if hess != None:
-            P = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
+            params = minimize(loss, params, method = 'Newton-CG', jac = grad, hess = hess).x
         else:
-            P = minimize(loss, [0] * ((D + 1) * C)).x
-        self.theta = decode(P)
+            params = minimize(loss, params).x
+        self.theta = decode(params)
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
