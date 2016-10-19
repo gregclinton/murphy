@@ -3,17 +3,16 @@ from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from sklearn import preprocessing 
 
-def categorical_cross_entropy_loss(X, Y, decode, penalty):
+def categorical_cross_entropy_loss(X, Y, decode, eta, penalty):
     N, D = X.shape
     N, C = Y.shape
     V0_inv = penalty * np.eye(D)
 
-    eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
-    mus = lambda W, b: enumerate(softmax(eta(W, b)))
+    mus = lambda W, b: enumerate(softmax(eta(X, W, b)))
 
     def loss(params):
         W, b = decode(params)
-        loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(W, b)))])
+        loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(X, W, b)))])
         return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
     def grad(params):
@@ -30,13 +29,13 @@ def categorical_cross_entropy_loss(X, Y, decode, penalty):
     # return loss, grad, hess
     return loss, None, None
 
-def categorical_svm_loss(X, Y, decode, penalty):
+def categorical_svm_loss(X, Y, decode, eta, penalty):
     N, D = X.shape
     N, C = Y.shape
 
     def loss(params):
         W, b = decode(params)
-        s = X.dot(W) + np.tile(b, (N, 1))
+        s = eta(X, W, b)
         
         def L(i):
             yi = np.argmax(Y[i])
@@ -56,7 +55,7 @@ def one_hot(y):
         for i in range(N):
             Y[i, int(y[i])] = 1
         return Y
-    
+
 class Classifier:
     def fit(self, X, y, loss, penalty = 0.0):
         Y = one_hot(y)
@@ -67,7 +66,7 @@ class Classifier:
         # X = self.scaler.transform(X)
 
         decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
-        loss, grad, hess = loss(X, Y, decode, penalty)
+        loss, grad, hess = loss(X, Y, decode, self.eta, penalty)
         params = [0] * (D + 1) * C
         
         if hess != None:
@@ -76,6 +75,10 @@ class Classifier:
             params = minimize(loss, params).x
         self.theta = decode(params)
 
+    @staticmethod
+    def eta(X, W, b):
+        return X.dot(W) + np.tile(b, (len(X), 1))
+    
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
 
@@ -83,7 +86,7 @@ class Classifier:
         # X = self.scaler.transform(X)
         N, D = X.shape
         W, b = self.theta
-        return softmax(X.dot(W) + np.tile(b, (N, 1)))
+        return softmax(self.eta(X, W, b))
 
     def predict(self, X):
         p = self.predict_proba(X)
