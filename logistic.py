@@ -12,23 +12,23 @@ def categorical_cross_entropy_loss(X, Y, penalty):
     mus = lambda W, b: enumerate(softmax(eta(W, b)))
     decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
 
-    def objective(P):
+    def loss(P):
         W, b = decode(P)
         nll = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(W, b)))])
         return nll + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
-    def gradient(P):
+    def grad(P):
         W, b = decode(P)
         grad = sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
         return (grad + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))).ravel()
 
-    def hessian(P):
+    def hess(P):
         W, b = decode(P)
         o = lambda x: np.outer(x, x)
         hess = sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
         return hess + np.kron(np.eye(C), V0_inv)
     
-    return objective, gradient, hessian
+    return loss, grad, hess
 
 def one_hot(y):
     y = np.array(y)
