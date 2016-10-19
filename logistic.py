@@ -32,6 +32,8 @@ def categorical_cross_entropy_loss(X, Y, decode, eta, penalty):
 def categorical_svm_loss(X, Y, decode, eta, penalty):
     N, D = X.shape
     N, C = Y.shape
+    
+    penalty = 0.1
 
     def loss(params):
         W, b = decode(params)
@@ -43,7 +45,7 @@ def categorical_svm_loss(X, Y, decode, eta, penalty):
             margins[c] = 0
             return sum(margins)
         
-        return sum([L(i) for i in range(N)])
+        return sum([L(i) for i in range(N)]) + np.sum(W ** 2) * penalty
     
     return loss, None, None
 
