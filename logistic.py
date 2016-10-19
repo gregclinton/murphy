@@ -3,14 +3,13 @@ from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from sklearn import preprocessing 
 
-def categorical_cross_entropy_loss(X, Y, penalty):
+def categorical_cross_entropy_loss(X, Y, decode, penalty):
     N, D = X.shape
     N, C = Y.shape
     V0_inv = penalty * np.eye(D)
 
     eta = lambda W, b: X.dot(W) + np.tile(b, (N, 1))
     mus = lambda W, b: enumerate(softmax(eta(W, b)))
-    decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
 
     def loss(P):
         W, b = decode(P)
@@ -50,10 +49,11 @@ class Classifier:
         # self.scaler = preprocessing.StandardScaler().fit(X)
         # X = self.scaler.transform(X)
 
-        loss, grad, hess = categorical_cross_entropy_loss(X, Y, penalty)
-        W = minimize(loss, [0] * ((D + 1) * C)).x
+        decode = lambda P: (P[:-C].reshape(D, C), P[-C:])
+        loss, grad, hess = categorical_cross_entropy_loss(X, Y, decode, penalty)
+        P = minimize(loss, [0] * ((D + 1) * C)).x
         # W = minimize(loss, [0] * ((D + 1) * C), method = 'Newton-CG', jac = grad, hess = hess).x
-        self.theta = W[:-C].reshape(D, C), W[-C:]
+        self.theta = decode(P)
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
