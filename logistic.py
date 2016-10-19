@@ -14,8 +14,8 @@ def categorical_cross_entropy_loss(X, Y, penalty):
 
     def loss(P):
         W, b = decode(P)
-        nll = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(W, b)))])
-        return nll + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
+        loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(W, b)))])
+        return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
     def grad(P):
         W, b = decode(P)
