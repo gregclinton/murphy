@@ -30,22 +30,15 @@ def categorical_crossentropy_loss(X, Y, decode, eta, penalty):
     return loss, None, None
 
 def categorical_hinge_loss(X, Y, decode, eta, penalty):
-    N, D = X.shape
-    N, C = Y.shape
+    y = np.argmax(Y, axis = 1)
+    rng = np.arange(len(X)) 
     
-    penalty = 0.1
-
     def loss(params):
         W, b = decode(params)
         s = eta(X, W, b)
-        
-        def L(i):
-            c = np.argmax(Y[i])
-            margins = np.maximum(0, s[i] - s[i, c] + 1)
-            margins[c] = 0
-            return sum(margins)
-        
-        return sum([L(i) for i in range(N)]) + np.sum(W ** 2) * penalty
+        s = (s.T - s[rng, y]).T
+        s[rng, y] = 0 
+        return np.sum(np.maximum(0, s + 1)) # + np.sum(W ** 2) * penalty
     
     return loss, None, None
 
