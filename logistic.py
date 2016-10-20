@@ -3,7 +3,7 @@ from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from sklearn import preprocessing 
 
-def categorical_cross_entropy_loss(X, Y, decode, eta, penalty):
+def categorical_crossentropy_loss(X, Y, decode, eta, penalty):
     N, D = X.shape
     N, C = Y.shape
     V0_inv = penalty * np.eye(D)
@@ -29,7 +29,7 @@ def categorical_cross_entropy_loss(X, Y, decode, eta, penalty):
     # return loss, grad, hess
     return loss, None, None
 
-def categorical_svm_loss(X, Y, decode, eta, penalty):
+def categorical_hinge_loss(X, Y, decode, eta, penalty):
     N, D = X.shape
     N, C = Y.shape
     
