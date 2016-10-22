@@ -16,3 +16,4 @@ def log_softmax(x):
 
 def softmax_cross_entropy_with_logits(x, y):
     return -np.sum(log_softmax(x) * y, axis = 1)
+    # return -log_softmax(x)[np.arange(len(x)), np.argmax(y, axis = 1)]
