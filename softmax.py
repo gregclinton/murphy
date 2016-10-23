@@ -16,4 +16,7 @@ def log_softmax(x):
 
 def softmax_cross_entropy_with_logits(x, y):
     return -np.sum(log_softmax(x) * y, axis = 1)
-    # return -log_softmax(x)[np.arange(len(x)), np.argmax(y, axis = 1)]
+    
+def grad_softmax_cross_entropy_with_logits(x, y):
+    # http://math.stackexchange.com/questions/945871/derivative-of-softmax-loss-function
+    return softmax(x) - y
