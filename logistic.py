@@ -42,20 +42,9 @@ def categorical_hinge_loss(X, Y, decode, eta, penalty):
     
     return loss, None, None
 
-def one_hot(y):
-    y = np.array(y)
-    if y.ndim == 2:
-        return y
-    else:
-        N, C = len(y), len(np.unique(y))
-        Y = np.zeros((N, C))
-        for i in range(N):
-            Y[i, int(y[i])] = 1
-        return Y
-
 class Classifier:
     def fit(self, X, y, loss, penalty = 0.0):
-        Y = one_hot(y)
+        Y = datasets.one_hot(y)
         N, D = X.shape
         N, C = Y.shape
 

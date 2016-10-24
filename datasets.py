@@ -8,6 +8,17 @@ import json
 downloads = '/users/gregc/Downloads/'
 downloads = '/home/greg/Downloads/'
 
+def one_hot(y):
+    y = np.array(y)
+    if y.ndim == 2:
+        return y
+    else:
+        N, C = len(y), len(np.unique(y))
+        Y = np.zeros((N, C))
+        for i in range(N):
+            Y[i, int(y[i])] = 1
+        return Y
+    
 def iris():
     url = 'https://raw.githubusercontent.com/uiuc-cse/data-fa14/gh-pages/data/iris.csv'
     data = pd.read_csv(url)
