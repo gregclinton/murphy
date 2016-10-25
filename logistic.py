@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from softmax import softmax, log_softmax
 from sklearn import preprocessing 
+from datasets import one_hot
 
 def categorical_crossentropy_loss(X, Y, decode, eta, penalty):
     N, D = X.shape
@@ -44,7 +45,7 @@ def categorical_hinge_loss(X, Y, decode, eta, penalty):
 
 class Classifier:
     def fit(self, X, y, loss, penalty = 0.0):
-        Y = datasets.one_hot(y)
+        Y = one_hot(y)
         N, D = X.shape
         N, C = Y.shape
 
