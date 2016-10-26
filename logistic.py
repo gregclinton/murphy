@@ -5,9 +5,6 @@ from sklearn import preprocessing
 from datasets import one_hot
 
 def crossentropy_loss(X, Y, decode):
-    N, D = X.shape
-    N, C = Y.shape
-
     def loss(params):
         W, b = decode(params)
         return -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(X.dot(W) + b))])
