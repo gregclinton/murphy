@@ -4,16 +4,16 @@ from softmax import softmax, log_softmax
 from sklearn import preprocessing 
 from datasets import one_hot
 
-def categorical_crossentropy_loss(X, Y, decode, eta, penalty):
+def categorical_crossentropy_loss(X, Y, decode, penalty):
     N, D = X.shape
     N, C = Y.shape
     V0_inv = penalty * np.eye(D)
 
-    mus = lambda W, b: enumerate(softmax(eta(X, W, b)))
+    mus = lambda W, b: enumerate(softmax(X.dot(W) + b))
 
     def loss(params):
         W, b = decode(params)
-        loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(eta(X, W, b)))])
+        loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(X.dot(W) + b))])
         return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
 
     def grad(params):
@@ -30,13 +30,13 @@ def categorical_crossentropy_loss(X, Y, decode, eta, penalty):
     # return loss, grad, hess
     return loss, None, None
 
-def categorical_hinge_loss(X, Y, decode, eta, penalty):
+def categorical_hinge_loss(X, Y, decode, penalty):
     y = np.argmax(Y, axis = 1)
     rng = np.arange(len(X)) 
     
     def loss(params):
         W, b = decode(params)
-        s = eta(X, W, b)
+        s = X.dot(W) + b
         s = (s.T - s[rng, y]).T
         s[rng, y] = 0 
         return np.sum(np.maximum(0, s + 1)) # + np.sum(W ** 2) * penalty
@@ -55,17 +55,13 @@ class Classifier:
         params = [0] * (D + 1) * C
         decode = lambda params: (params[:-C].reshape(D, C), params[-C:])
 
-        loss, grad, hess = loss(X, Y, decode, self.eta, penalty)
+        loss, grad, hess = loss(X, Y, decode, penalty)
         
         if hess != None:
             params = minimize(loss, params, method = 'Newton-CG', jac = grad, hess = hess).x
         else:
             params = minimize(loss, params).x
         self.theta = decode(params)
-
-    @staticmethod
-    def eta(X, W, b):
-        return X.dot(W) + np.tile(b, (len(X), 1))
     
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
@@ -73,7 +69,7 @@ class Classifier:
     def predict_proba(self, X):
         # X = self.scaler.transform(X)
         W, b = self.theta
-        return softmax(self.eta(X, W, b))
+        return softmax(X.dot(W) + b)
 
     def predict(self, X):
         p = self.predict_proba(X)
