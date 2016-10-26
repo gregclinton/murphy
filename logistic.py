@@ -8,22 +8,20 @@ def crossentropy_loss(X, Y, decode):
     N, D = X.shape
     N, C = Y.shape
 
-    mus = lambda W, b: enumerate(softmax(X.dot(W) + b))
-
     def loss(params):
         W, b = decode(params)
         return -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(X.dot(W) + b))])
 
     def grad(params):
         W, b = decode(params)
-        return sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)]).ravel()
+        return sum([np.kron(mu - Y[i], X[i]) for i, mu in enumerate(softmax(X.dot(W) + b))])
 
     def hess(params):
         W, b = decode(params)
         o = lambda x: np.outer(x, x)
-        return sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
+        return sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in enumerate(softmax(X.dot(W) + b))])
     
-    # return loss, grad, hess
+#    return loss, grad, hess
     return loss, None, None
 
 def hinge_loss(X, Y, decode):
