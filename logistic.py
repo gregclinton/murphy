@@ -4,33 +4,29 @@ from softmax import softmax, log_softmax
 from sklearn import preprocessing 
 from datasets import one_hot
 
-def categorical_crossentropy_loss(X, Y, decode, penalty):
+def crossentropy_loss(X, Y, decode):
     N, D = X.shape
     N, C = Y.shape
-    V0_inv = penalty * np.eye(D)
 
     mus = lambda W, b: enumerate(softmax(X.dot(W) + b))
 
     def loss(params):
         W, b = decode(params)
-        loss = -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(X.dot(W) + b))])
-        return loss + (0.5 * sum([w.dot(V0_inv).dot(w) for w in W.T]) if penalty > 0 else 0.0)
+        return -sum([Y[i].dot(ll) for i, ll in enumerate(log_softmax(X.dot(W) + b))])
 
     def grad(params):
         W, b = decode(params)
-        grad = sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)])
-        return (grad + np.tile(V0_inv.dot(np.sum(W, axis = 1)), (C, 1))).ravel()
+        return sum([np.kron(mu - Y[i], X[i]) for i, mu in mus(W, b)]).ravel()
 
     def hess(params):
         W, b = decode(params)
         o = lambda x: np.outer(x, x)
-        hess = sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
-        return hess + np.kron(np.eye(C), V0_inv)
+        return sum([np.kron(np.diag(mu) - o(mu), o(X[i])) for i, mu in mus(W, b)])
     
     # return loss, grad, hess
     return loss, None, None
 
-def categorical_hinge_loss(X, Y, decode, penalty):
+def hinge_loss(X, Y, decode):
     y = np.argmax(Y, axis = 1)
     rng = np.arange(len(X)) 
     
@@ -39,12 +35,12 @@ def categorical_hinge_loss(X, Y, decode, penalty):
         s = X.dot(W) + b
         s = (s.T - s[rng, y]).T
         s[rng, y] = 0 
-        return np.sum(np.maximum(0, s + 1)) # + np.sum(W ** 2) * penalty
+        return np.sum(np.maximum(0, s + 1))
     
     return loss, None, None
 
 class Classifier:
-    def fit(self, X, y, loss, penalty = 0.0):
+    def fit(self, X, y, loss):
         Y = one_hot(y)
         N, D = X.shape
         N, C = Y.shape
@@ -55,7 +51,7 @@ class Classifier:
         params = [0] * (D + 1) * C
         decode = lambda params: (params[:-C].reshape(D, C), params[-C:])
 
-        loss, grad, hess = loss(X, Y, decode, penalty)
+        loss, grad, hess = loss(X, Y, decode)
         
         if hess != None:
             params = minimize(loss, params, method = 'Newton-CG', jac = grad, hess = hess).x
