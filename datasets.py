@@ -25,7 +25,7 @@ def iris():
     species = list(np.unique(data.species))
     y = np.array([species.index(s) for s in data.species])
     X = data.values[:, 0:-1]
-    return X * 1.0, y * 1.0
+    return X.astype(np.float32), y * 1.0
 
 def htwt():
     url = 'https://raw.githubusercontent.com/probml/pmtk1/master/pmtk/data/heightWeightData.txt'
@@ -34,7 +34,7 @@ def htwt():
     X = data.ix[:, 1 : 2].values
     y = data.ix[:, 0].values
     y = (y == 1) * y
-    return X * 1.0, y * 1.0
+    return X.astype(np.float32), y * 1.0
 
 def passengers():
     url = 'https://vincentarelbundock.github.io/Rdatasets/csv/datasets/AirPassengers.csv'
