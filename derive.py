@@ -1,6 +1,10 @@
 import numpy as np
 import numdifftools as nd
 from scipy.misc import derivative
+import tensorflow as tf      
+import theano
+import theano.tensor as T
+
 # import numdifftools as nd
 
 # http://localhost:8888/edit/Desktop/assignment1/cs231n/gradient_check.py
@@ -45,16 +49,30 @@ def grad(fun):
     return eval
     
 def hess(fun):
-    g = grad(fun)
-    
-    def eval(x):
-        x = np.array(x).astype(float)
-        n = len(x)
-        hess = np.empty((n, n))
+    if True:
+        def eval(vars):
+            # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
+            cons = lambda x: tf.constant(x, dtype = tf.float32)
+            mat = []
+            for v1 in vars:
+                temp = []
+                for v2 in vars:
+                    temp.append(tf.gradients(tf.gradients(fun, v2)[0], v1)[0])
+                temp = [cons(0) if t == None else t for t in temp] 
+                temp = tf.pack(temp)
+                mat.append(temp)
+            return tf.pack(mat)
+    else:
+        g = grad(fun)
 
-        for i in xrange(n):
-            for j in xrange(n): 
-                hess[i, j] = partial(g, i, x)[j]
-                
-        return hess   
+        def eval(x):
+            x = np.array(x).astype(float)
+            n = len(x)
+            hess = np.empty((n, n))
+
+            for i in xrange(n):
+                for j in xrange(n): 
+                    hess[i, j] = partial(g, i, x)[j]
+
+            return hess   
     return eval
