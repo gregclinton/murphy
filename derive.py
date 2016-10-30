@@ -42,20 +42,13 @@ def partial(fun, i, x):
 
 def grad(fun):
     if 'sympy' in str(type(fun)):
-        x = list(fun.free_symbols)
-        D = len(x)
+        fns = []
+        vars = list(fun.free_symbols)
+        for x in vars:
+            fns.append(sm.lambdify(vars, sm.diff(fun, x)))
 
         def eval(point):
-            a = []
-            for i in xrange(D):
-                rest = range(D)
-                del rest[i]
-                vars = [x[j] for j in rest]
-                vals = [point[j] for j in rest]
-                substitutions = {var: val for (var, val) in zip(vars, vals)}
-                partial = sm.diff(fun.subs(substitutions), x[i])
-                a.append(partial.subs(x[i], point[i]))
-            return a
+            return [fn(*point) for fn in fns]
 
         return eval
     else:
