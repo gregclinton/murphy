@@ -1,7 +1,8 @@
 import numpy as np
 import numdifftools as nd
 from scipy.misc import derivative
-import tensorflow as tf      
+import tensorflow as tf
+from tensorflow.python.framework.ops import Tensor
 import theano
 import theano.tensor as T
 
@@ -49,7 +50,7 @@ def grad(fun):
     return eval
     
 def hess(fun):
-    if True:
+    if isinstance(fun, Tensor):
         def eval(vars):
             # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
             cons = lambda x: tf.constant(x, dtype = tf.float32)
