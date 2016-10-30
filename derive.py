@@ -1,5 +1,4 @@
 import numpy as np
-import numdifftools as nd
 from scipy.misc import derivative
 import sympy as sm
 import tensorflow as tf
