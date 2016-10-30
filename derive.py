@@ -32,12 +32,12 @@ def grad(fun):
     return eval
 
 # http://stackoverflow.com/questions/20708038/scipy-misc-derivative-for-mutiple-argument-function
-def partial(func, ix, point):
-    v = point[:]
+def partial(fun, i, x):
+    v = x[:]
     def wraps(x):
-        v[ix] = x
-        return func(v)
-    return derivative(wraps, point[ix], dx = 1e-6)
+        v[i] = x
+        return fun(v)
+    return derivative(wraps, x[i], dx = 1e-6)
 
 def grad(fun):
     if 'sympy' in str(type(fun)):
