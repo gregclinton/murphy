@@ -60,8 +60,7 @@ def grad(fun):
 def hess(fun):
     if 'sympy' in str(type(fun)):
         def eval(x):
-            return None
-        
+            return None     
     elif isinstance(fun, Tensor):
         def eval(vars):
             # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
