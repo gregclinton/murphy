@@ -42,15 +42,11 @@ def partial(fun, i, x):
 
 def grad(fun):
     if 'sympy' in str(type(fun)):
-        fns = []
         vars = list(fun.free_symbols)
-        for x in vars:
-            fns.append(sm.lambdify(vars, sm.diff(fun, x)))
+        fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
 
         def eval(x):
             return [fn(*x) for fn in fns]
-
-        return eval
     else:
         def eval(x):
             x = np.array(x)
