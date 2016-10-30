@@ -58,8 +58,19 @@ def grad(fun):
     
 def hess(fun):
     if 'sympy' in str(type(fun)):
+        vars = fun.free_symbols
+        fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
+
         def eval(x):
-            return None     
+            x = np.array(x).astype(float)
+            n = len(x)
+            hess = np.empty((n, n))
+
+            for i in xrange(n):
+                for j in xrange(n): 
+                    hess[i, j] = fn(g, i, x)[j]
+
+            return hess   
     elif isinstance(fun, Tensor):
         def eval(vars):
             # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
