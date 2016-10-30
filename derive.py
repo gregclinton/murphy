@@ -47,8 +47,8 @@ def grad(fun):
         for x in vars:
             fns.append(sm.lambdify(vars, sm.diff(fun, x)))
 
-        def eval(point):
-            return [fn(*point) for fn in fns]
+        def eval(x):
+            return [fn(*x) for fn in fns]
 
         return eval
     else:
