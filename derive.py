@@ -41,7 +41,7 @@ def partial(fun, i, x):
 
 def grad(fun):
     if 'sympy' in str(type(fun)):
-        vars = list(fun.free_symbols)
+        vars = fun.free_symbols
         fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
 
         def eval(x):
