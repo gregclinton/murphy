@@ -1,6 +1,7 @@
 import numpy as np
 import numdifftools as nd
 from scipy.misc import derivative
+import sympy as sm
 import tensorflow as tf
 from tensorflow.python.framework.ops import Tensor
 import theano
@@ -41,8 +42,22 @@ def partial(fun, i, x):
 
 def grad(fun):
     if 'sympy' in str(type(fun)):
-        def eval(vars):
-            return None
+        x = list(fun.free_symbols)
+        D = len(x)
+
+        def eval(point):
+            a = []
+            for i in xrange(D):
+                rest = range(D)
+                del rest[i]
+                vars = [x[j] for j in rest]
+                vals = [point[j] for j in rest]
+                substitutions = {var: val for (var, val) in zip(vars, vals)}
+                partial = sm.diff(fun.subs(substitutions), x[i])
+                a.append(partial.subs(x[i], point[i]))
+            return a
+
+        return eval
     else:
         def eval(x):
             x = np.array(x)
