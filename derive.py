@@ -40,29 +40,37 @@ def partial(func, ix, point):
     return derivative(wraps, point[ix], dx = 1e-6)
 
 def grad(fun):
-    def eval(x):
-        x = np.array(x)
-        if x.ndim == 0:
-            return derivative(fun, x, dx = 1e-6)
-        else:
-            grad = [partial(fun, i, x) for i in xrange(len(x))]
-            return np.array(grad)
+    if 'sympy' in str(type(fun)):
+        def eval(vars):
+            return None
+    else:
+        def eval(x):
+            x = np.array(x)
+            if x.ndim == 0:
+                return derivative(fun, x, dx = 1e-6)
+            else:
+                grad = [partial(fun, i, x) for i in xrange(len(x))]
+                return np.array(grad)
     return eval
     
 def hess(fun):
-    if isinstance(fun, Tensor):
+    if 'sympy' in str(type(fun)):
+        def eval(x):
+            return None
+        
+    elif isinstance(fun, Tensor):
         def eval(vars):
             # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
             cons = lambda x: tf.constant(x, dtype = tf.float32)
-            mat = []
+            hess = []
             for v1 in vars:
                 temp = []
                 for v2 in vars:
                     temp.append(tf.gradients(tf.gradients(fun, v2)[0], v1)[0])
                 temp = [cons(0) if t == None else t for t in temp] 
                 temp = tf.pack(temp)
-                mat.append(temp)
-            return tf.pack(mat)
+                hess.append(temp)
+            return tf.pack(hess)
     else:
         g = grad(fun)
 
