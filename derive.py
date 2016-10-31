@@ -45,10 +45,11 @@ def grad(fun):
         fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
 
         def eval(x):
+            x = np.array(x).astype(float)
             return [fn(*x) for fn in fns]
     else:
         def eval(x):
-            x = np.array(x)
+            x = np.array(x).astype(float)
             if x.ndim == 0:
                 return derivative(fun, x, dx = 1e-6)
             else:
