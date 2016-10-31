@@ -59,17 +59,18 @@ def grad(fun):
 def hess(fun):
     if 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
+        n = len(vars)
         gs = [sm.diff(fun, var) for var in vars]
         fns = [sm.lambdify(vars, sm.diff(gs[i], var)) for i, var in enumerate(vars)]
+        # fns = [sm.lambdify(vars, sm.FunctionMatrix(n, 1, sm.diff(gs[i], var))) for i, var in enumerate(vars)]
 
         def eval(x):
             x = np.array(x).astype(float)
-            n = len(x)
             hess = np.empty((n, n))
 
             for i in xrange(n):
                 for j in xrange(n): 
-                    hess[i, j] = fns[i](*x)
+                    hess[i, j] = fns[i](*x) # [j]
 
             return hess   
     elif isinstance(fun, Tensor):
