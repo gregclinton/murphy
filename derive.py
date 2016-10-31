@@ -33,6 +33,7 @@ def grad(fun):
 
 # http://stackoverflow.com/questions/20708038/scipy-misc-derivative-for-mutiple-argument-function
 def partial(fun, i, x):
+    x = np.array(x).astype(float)
     v = x[:]
     def wraps(x):
         v[i] = x
@@ -47,6 +48,10 @@ def grad(fun):
         def eval(x):
             x = np.array(x).astype(float)
             return [fn(*x) for fn in fns]
+    elif isinstance(fun, Tensor):
+        def eval(x):
+            x = np.array(x).astype(float)
+            return None
     else:
         def eval(x):
             x = np.array(x).astype(float)
