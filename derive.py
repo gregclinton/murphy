@@ -41,7 +41,7 @@ def partial(fun, i, x):
 
 def grad(fun):
     if 'sympy' in str(type(fun)):
-        vars = fun.free_symbols
+        vars = list(fun.free_symbols)
         fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
 
         def eval(x):
@@ -58,8 +58,9 @@ def grad(fun):
     
 def hess(fun):
     if 'sympy' in str(type(fun)):
-        vars = fun.free_symbols
-        fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
+        g = grad(fun)
+        vars = list(fun.free_symbols)
+        fns = [sm.lambdify(var, sm.diff(g, var)) for var in vars]
 
         def eval(x):
             x = np.array(x).astype(float)
@@ -68,7 +69,7 @@ def hess(fun):
 
             for i in xrange(n):
                 for j in xrange(n): 
-                    hess[i, j] = fn(g, i, x)[j]
+                    hess[i, j] = fns[i](x[i])[j]
 
             return hess   
     elif isinstance(fun, Tensor):
