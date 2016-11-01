@@ -70,7 +70,7 @@ def hess(fun, vars = None):
     def eval(x):
         x = np.array(x).astype(float)
         n = len(x)
-        return np.array([part(x, i)[j] for i in xrange(n) for j in xrange(n)])
+        return np.array([part(x, i)[j] for i in xrange(n) for j in xrange(n)]).reshape((n, n))
     
     return eval
 
