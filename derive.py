@@ -64,6 +64,16 @@ def grad(fun, vars = None):
     
     return eval
 
+def hess(fun, vars = None):
+    part = partial(grad(fun, vars), vars)
+
+    def eval(x):
+        x = np.array(x).astype(float)
+        n = len(x)
+        return np.array([part(x, i)[j] for i in xrange(n) for j in xrange(n)])
+    
+    return eval
+
 def xgrad(fun):
     if 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
@@ -86,7 +96,7 @@ def xgrad(fun):
                 return np.array(grad)
     return eval
     
-def hess(fun):
+def xhess(fun):
     if 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         gs = [sm.diff(fun, var) for var in vars]
