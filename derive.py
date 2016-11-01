@@ -45,20 +45,13 @@ def hess(fun, vars = None):
         return tf.pack([row(v1) for v1 in vars])
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
+        n = len(vars)
         gs = [sm.diff(fun, var) for var in vars]
         fns = [sm.lambdify(vars, sm.diff(gs[i], var)) for i, var in enumerate(vars)]
-        # fns = [sm.lambdify(vars, sm.FunctionMatrix(n, 1, sm.diff(gs[i], var))) for i, var in enumerate(vars)]
 
         def eval(x):
             x = np.array(x).astype(float)
-            n = len(vars)
-            hess = np.empty((n, n))
-
-            for i in xrange(n):
-                for j in xrange(n): 
-                    hess[i, j] = fns[i](*x) # [j]
-
-            return hess
+            return np.array([fns[i](*x) for i in xrange(n) for j in xrange(n)]).reshape(n, n)
     else:
         part = partial(grad(fun, vars), vars)
 
