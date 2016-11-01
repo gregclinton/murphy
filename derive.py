@@ -32,7 +32,7 @@ def grad(fun):
     return eval
 
 # http://stackoverflow.com/questions/20708038/scipy-misc-derivative-for-mutiple-argument-function
-def partial(fun, i, x):
+def xpartial(fun, i, x):
     x = np.array(x).astype(float)
     v = x[:]
     def wraps(x):
@@ -40,7 +40,31 @@ def partial(fun, i, x):
         return fun(v)
     return derivative(wraps, x[i], dx = 1e-6)
 
-def grad(fun):
+
+def partial(fun, vars = None):
+    if isinstance(fun, Tensor):
+        fns = [tf.gradients(fun, var)[0] for var in vars]
+        def eval(xx, i):
+            return fns[i].eval({var: x for (var, x) in zip(vars, xx)})
+    else:
+        def eval(x, i):
+            v = x[:]
+            def wraps(x):
+                v[i] = x
+                return fun(v)    
+            return derivative(wraps, x[i], dx = 1e-6)
+    return eval
+
+def grad(fun, vars = None):
+    part = partial(fun, vars)
+    
+    def eval(x):
+        x = np.array(x).astype(float)
+        return np.array([part(x, i) for i in xrange(len(x))])
+    
+    return eval
+
+def xgrad(fun):
     if 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
