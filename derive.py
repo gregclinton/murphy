@@ -38,16 +38,11 @@ def grad(fun, vars = None):
 def hess(fun, vars = None):
     if isinstance(fun, Tensor):
         # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
-        cons = lambda x: tf.constant(x, dtype = tf.float32)
-        hess = []
-        for v1 in vars:
-            temp = []
-            for v2 in vars:
-                temp.append(tf.gradients(tf.gradients(fun, v2)[0], v1)[0])
-            temp = [cons(0) if t == None else t for t in temp] 
-            temp = tf.pack(temp)
-            hess.append(temp)
-        return tf.pack(hess)
+        def row(v1):
+            row = [tf.gradients(tf.gradients(fun, v2)[0], v1)[0] for v2 in vars]
+            row = [tf.constant(0.0) if t == None else t for t in row] 
+            return tf.pack(row)
+        return tf.pack([row(v1) for v1 in vars])
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         gs = [sm.diff(fun, var) for var in vars]
