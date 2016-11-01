@@ -19,7 +19,9 @@ def partial(fun, vars = None):
 
 def grad(fun, vars = None):
     if isinstance(fun, Tensor):
-        return tf.pack([tf.gradients(fun, var)[0] for var in vars])    
+        return tf.pack([tf.gradients(fun, var)[0] for var in vars])
+    elif 'theano' in str(type(fun)):
+        return None
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
@@ -43,6 +45,8 @@ def hess(fun, vars = None):
             row = [tf.constant(0.0) if t == None else t for t in row] 
             return tf.pack(row)
         return tf.pack([row(v1) for v1 in vars])
+    elif 'theano' in str(type(fun)):
+        return None
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         n = len(vars)
