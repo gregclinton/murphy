@@ -21,7 +21,7 @@ def grad(fun, vars = None):
     if isinstance(fun, Tensor):
         return tf.pack([tf.gradients(fun, wrt)[0] for wrt in vars])
     elif 'theano' in str(type(fun)):
-        return None
+        return T.grad(fun, vars)
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         fns = [sm.lambdify(vars, sm.diff(fun, wrt)) for wrt in vars]
