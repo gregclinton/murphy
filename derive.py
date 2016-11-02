@@ -19,12 +19,12 @@ def partial(fun, vars = None):
 
 def grad(fun, vars = None):
     if isinstance(fun, Tensor):
-        return tf.pack([tf.gradients(fun, var)[0] for var in vars])
+        return tf.pack([tf.gradients(fun, wrt)[0] for wrt in vars])
     elif 'theano' in str(type(fun)):
         return None
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
-        fns = [sm.lambdify(vars, sm.diff(fun, var)) for var in vars]
+        fns = [sm.lambdify(vars, sm.diff(fun, wrt)) for wrt in vars]
 
         def eval(x):
             x = np.array(x).astype(float)
@@ -40,18 +40,18 @@ def grad(fun, vars = None):
 def hess(fun, vars = None):
     if isinstance(fun, Tensor):
         # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
-        def row(v1):
-            row = [tf.gradients(tf.gradients(fun, v2)[0], v1)[0] for v2 in vars]
+        def row(wrt1):
+            row = [tf.gradients(tf.gradients(fun, wrt2)[0], wrt1)[0] for wrt2 in vars]
             row = [tf.constant(0.0) if t == None else t for t in row] 
             return tf.pack(row)
-        return tf.pack([row(v1) for v1 in vars])
+        return tf.pack([row(wrt1) for wrt1 in vars])
     elif 'theano' in str(type(fun)):
         return None
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         n = len(vars)
-        gs = [sm.diff(fun, var) for var in vars]
-        fns = [sm.lambdify(vars, sm.diff(gs[i], var)) for i, var in enumerate(vars)]
+        gs = [sm.diff(fun, wrt) for wrt in vars]
+        fns = [sm.lambdify(vars, sm.diff(gs[i], wrt)) for i, wrt in enumerate(vars)]
 
         def eval(x):
             x = np.array(x).astype(float)
