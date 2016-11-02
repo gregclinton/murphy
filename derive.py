@@ -17,11 +17,11 @@ def partial(fun, vars = None):
         return derivative(wraps, x[i], dx = 1e-6)
     return eval
 
-def grad(fun, vars = None):
+def grad(fun, wrt = None):
     if isinstance(fun, Tensor):
-        return tf.pack([tf.gradients(fun, wrt)[0] for wrt in vars])
+        return tf.gradients(fun, wrt)[0]
     elif 'theano' in str(type(fun)):
-        return T.grad(fun, vars)
+        return T.grad(fun, [3.0, 1.0])
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         fns = [sm.lambdify(vars, sm.diff(fun, wrt)) for wrt in vars]
