@@ -2,7 +2,8 @@ import numpy as np
 from scipy.misc import derivative
 import sympy as sm
 import tensorflow as tf
-from tensorflow.python.framework.ops import Tensor
+from tensorflow.python.framework.ops import Tensor, name_scope
+from tensorflow.python.ops import array_ops
 import theano
 import theano.tensor as T
 # import numdifftools as nd
@@ -37,14 +38,13 @@ def grad(fun, wrt = None):
             return np.array([part(x, i) for i in xrange(len(x))])
     return eval
 
-def hess(fun, vars = None):
+def hess(fun, wrt = None):
     if isinstance(fun, Tensor):
-        # http://stackoverflow.com/questions/35266370/tensorflow-compute-hessian-matrix-and-higher-order-derivatives
-        def row(wrt1):
-            row = [tf.gradients(tf.gradients(fun, wrt2)[0], wrt1)[0] for wrt2 in vars]
-            row = [tf.constant(0.0) if t == None else t for t in row] 
-            return tf.pack(row)
-        return tf.pack([row(wrt1) for wrt1 in vars])
+        # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/gradients.py
+        _gradients = tf.gradients(fun, wrt)[0]
+        _gradients = array_ops.unpack(_gradients)
+        _hess = [tf.gradients(_gradient, wrt)[0] for _gradient in _gradients]
+        return array_ops.pack(_hess)
     elif 'theano' in str(type(fun)):
         return None
     elif 'sympy' in str(type(fun)):
