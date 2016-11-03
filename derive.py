@@ -8,7 +8,7 @@ import theano
 import theano.tensor as T
 # import numdifftools as nd
 
-def partial(fun, vars = None):
+def partial(fun):
     def eval(x, i):
         # http://stackoverflow.com/questions/20708038/scipy-misc-derivative-for-mutiple-argument-function
         v = x[:]
@@ -31,7 +31,7 @@ def grad(fun, wrt = None):
             x = np.array(x).astype(float)
             return [fn(*x) for fn in fns]
     else:
-        part = partial(fun, vars)
+        part = partial(fun)
         
         def eval(x):
             x = np.array(x).astype(float)
@@ -41,8 +41,8 @@ def grad(fun, wrt = None):
 def hess(fun, wrt = None):
     if isinstance(fun, Tensor):
         # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/gradients.py
-        grad = array_ops.unpack(tf.gradients(fun, wrt)[0])
-        hess = [tf.gradients(g, wrt)[0] for g in grad]
+        gs = array_ops.unpack(tf.gradients(fun, wrt)[0])
+        hess = [tf.gradients(g, wrt)[0] for g in gs]
         return array_ops.pack(hess)
     elif 'theano' in str(type(fun)):
         return None
@@ -56,7 +56,7 @@ def hess(fun, wrt = None):
             x = np.array(x).astype(float)
             return np.array([fns[i](*x) for i in xrange(n) for j in xrange(n)]).reshape(n, n)
     else:
-        part = partial(grad(fun, vars), vars)
+        part = partial(grad(fun, wrt))
 
         def eval(x):
             x = np.array(x).astype(float)
