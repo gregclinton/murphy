@@ -2,7 +2,7 @@ import numpy as np
 from scipy.misc import derivative
 import sympy as sm
 import tensorflow as tf
-from tensorflow.python.framework.ops import Tensor, name_scope
+from tensorflow.python.framework.ops import Tensor
 from tensorflow.python.ops import array_ops
 import theano
 import theano.tensor as T
@@ -41,10 +41,9 @@ def grad(fun, wrt = None):
 def hess(fun, wrt = None):
     if isinstance(fun, Tensor):
         # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/gradients.py
-        _gradients = tf.gradients(fun, wrt)[0]
-        _gradients = array_ops.unpack(_gradients)
-        _hess = [tf.gradients(_gradient, wrt)[0] for _gradient in _gradients]
-        return array_ops.pack(_hess)
+        grad = array_ops.unpack(tf.gradients(fun, wrt)[0])
+        hess = [tf.gradients(g, wrt)[0] for g in grad]
+        return array_ops.pack(hess)
     elif 'theano' in str(type(fun)):
         return None
     elif 'sympy' in str(type(fun)):
