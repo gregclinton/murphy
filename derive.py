@@ -1,22 +1,10 @@
 import numpy as np
-from scipy.misc import derivative
 import sympy as sm
 import tensorflow as tf
 from tensorflow.python.framework.ops import Tensor
 from tensorflow.python.ops import array_ops
 import theano
 import theano.tensor as T
-# import numdifftools as nd
-
-def partial(fun):
-    def eval(x, i):
-        # http://stackoverflow.com/questions/20708038/scipy-misc-derivative-for-mutiple-argument-function
-        v = x[:]
-        def wraps(x):
-            v[i] = x
-            return fun(v)    
-        return derivative(wraps, x[i], dx = 1e-6)
-    return eval
 
 def grad(fun, wrt = None):
     if isinstance(fun, Tensor):
@@ -30,12 +18,6 @@ def grad(fun, wrt = None):
         def eval(x):
             x = np.array(x).astype(float)
             return [fn(*x) for fn in fns]
-    else:
-        part = partial(fun)
-        
-        def eval(x):
-            x = np.array(x).astype(float)
-            return np.array([part(x, i) for i in xrange(len(x))])
     return eval
 
 def hess(fun, wrt = None):
@@ -44,8 +26,6 @@ def hess(fun, wrt = None):
         gs = array_ops.unpack(tf.gradients(fun, wrt)[0])
         hess = [tf.gradients(g, wrt)[0] for g in gs]
         return array_ops.pack(hess)
-    elif 'theano' in str(type(fun)):
-        return None
     elif 'sympy' in str(type(fun)):
         vars = list(fun.free_symbols)
         n = len(vars)
@@ -55,33 +35,4 @@ def hess(fun, wrt = None):
         def eval(x):
             x = np.array(x).astype(float)
             return np.array([fns[i](*x) for i in xrange(n) for j in xrange(n)]).reshape(n, n)
-    else:
-        part = partial(grad(fun, wrt))
-
-        def eval(x):
-            x = np.array(x).astype(float)
-            n = len(x)
-            return np.array([part(x, i)[j] for i in xrange(n) for j in xrange(n)]).reshape((n, n))    
-    return eval
-
-def my_numeric_grad(fun):
-    def eval(x):
-        # http://localhost:8888/edit/Desktop/assignment1/cs231n/gradient_check.py
-        x = np.array(x).astype(float)
-        h = 1e-6
-        grad = np.zeros_like(x)
-        it = np.nditer(x, flags = ['multi_index'], op_flags = ['readwrite'])
-
-        while not it.finished:
-            ix = it.multi_index
-            oldval = x[ix]
-            x[ix] = oldval + h
-            fxph = fun(x)
-            x[ix] = oldval - h
-            fxmh = fun(x)
-            x[ix] = oldval
-            grad[ix] = (fxph - fxmh) / (2 * h)
-            it.iternext()
-
-        return grad
     return eval
