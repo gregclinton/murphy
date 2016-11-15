@@ -43,8 +43,11 @@ def passengers():
 
 def spam():
     url = 'http://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/spam.data'
-    d = pd.read_table(url, header = None, sep = ' ')
-    return d
+    d = pd.read_table(url, header = None, sep = ' ').values
+    np.random.shuffle(d)
+    trX, trY = d[:3065, :-1], d[:3065, -1]
+    teX, teY = d[3065:, :-1], d[3065:, -1]
+    return trX, teX, trY, teY
 
 # https://github.com/burakbayramli/kod/tree/master/books/Introductory_Time_Series_with_R_Metcalfe
 cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/Introductory_Time_Series_with_R_Metcalfe/'
