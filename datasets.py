@@ -41,6 +41,11 @@ def passengers():
     data = pd.read_csv(url).AirPassengers.values
     return pd.Series(data, pd.period_range('1949', periods = len(data), freq = 'M'))
 
+def spam():
+    url = 'http://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/spam.data'
+    d = pd.read_table(url, header = None, sep = ' ')
+    return d
+
 # https://github.com/burakbayramli/kod/tree/master/books/Introductory_Time_Series_with_R_Metcalfe
 cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/kod/master/books/Introductory_Time_Series_with_R_Metcalfe/'
 
