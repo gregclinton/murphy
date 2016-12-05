@@ -33,8 +33,9 @@ def ccf(x1, x2, nlags):
 
 def ewma(x, alpha = None, com = None):   
     alpha = alpha or 1.0 / (1 + com)
+    a = []
     
-    def item(i):
-        return x[i] if i == 0 else alpha * x[i] + (1 - alpha) * item(i - 1)
-    
-    return np.array([item(n) for n in range(len(x))])
+    for i in range(len(x)):
+        a.append(x[i] if i == 0 else alpha * x[i] + (1 - alpha) * a[i - 1])
+            
+    return np.array(a)
