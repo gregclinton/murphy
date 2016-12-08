@@ -52,6 +52,10 @@ def spam():
 # https://github.com/burakbayramli/kod/tree/master/books/Introductory_Time_Series_with_R_Metcalfe
 cowpertwait = 'https://raw.githubusercontent.com/burakbayramli/books/master/Introductory_Time_Series_with_R_Metcalfe/'
     
+def maine():
+    data = pd.read_csv(cowpertwait + 'Maine.dat')['unemploy'].values
+    return pd.Series(data, pd.period_range('1996', periods = len(data), freq = 'M'))
+    
 def motor():
     data = pd.read_csv(cowpertwait + 'motororg.dat')['complaints'].values
     return pd.Series(data, pd.period_range('1996', periods = len(data), freq = 'M'))
