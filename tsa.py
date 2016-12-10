@@ -1,8 +1,8 @@
 import numpy as np
 
-# see https://github.com/statsmodels/statsmodels/blob/master/statsmodels/tsa/seasonal.py
-
 def decompose(x, freq):
+    # or use statsmodels sm.tsa.seasonal_decompose
+    # see https://github.com/statsmodels/statsmodels/blob/master/statsmodels/tsa/seasonal.py
     n = len(x)
     filt = np.array([.5] + [1] * (freq - 1) + [.5]) / freq
     a = [np.sum(x[i : i + len(filt)] * filt) for i in range(len(x) - freq)]
