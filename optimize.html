@@ -1,0 +1,25 @@
+<!doctype html>
+<html ng-app="explore">
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="explore.js"></script>
+        <script src="optimize.js"></script>
+        <link href="explore.css" rel="stylesheet" />
+        <title>optimize</title>
+    </head>
+
+    <body ng-controller="explore">
+        <pre ng-if="error !== ''"> {{error}} </pre>
+        <div ng-controller="optimize">
+            <chart
+                class="card"
+                ng-repeat="chart in charts track by chart.id"
+                data="chart">
+            </chart>
+        </div>
+        <shortcut key="r" keypress="get('/optimize/reload')"></shortcut>
+    </body>
+
+
+</html>
