@@ -32,7 +32,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             $scope.charts = [{layout: layout, data: [trace], id: 1}];
         },
 
-        function (trace) {        
+        function (trace) {
             $scope.error = trace;
         }
     );
