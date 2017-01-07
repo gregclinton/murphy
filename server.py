@@ -22,6 +22,7 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 mime = 'text/plain'
                 res = 'success'
             elif path.endswith('favicon.ico'):
+                mime = 'text/html'
                 res = ''
             elif path.endswith('.html'):
                 mime = 'text/html'
