@@ -1,6 +1,8 @@
 /*global angular,Plotly*/
 
-angular.module('main').directive('chart', [function () {
+angular.module('chart', []);
+
+angular.module('chart').directive('chart', [function () {
     function link(scope, element, attribute) {
         var json = scope.data,
             options = { displayModeBar: false, staticPlot: true };

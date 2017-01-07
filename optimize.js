@@ -1,6 +1,6 @@
 /*global angular*/
 
-angular.module('main', []);
+angular.module('main', ['chart']);
 
 angular.module('main').controller('optimize', ['$scope', '$http', function ($scope, $http) {
     $scope.charts = [];
