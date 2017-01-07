@@ -2,9 +2,20 @@ import SimpleHTTPServer
 import SocketServer
 import json
 import traceback
+import os
 
 modules = {}
 
+def load(name):
+    info = modules.get(name)
+    timestamp = os.stat(name + '.py')[8]
+    if info == None:
+        modules[name] =  {'mod': __import__(name), 'ts': timestamp}
+    elif timestamp > info['ts']:
+        reload(info['mod'])
+        info['ts'] = timestamp
+    return modules[name]['mod']
+    
 class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         try:
@@ -16,18 +27,11 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 with open(path, 'r') as f:
                     return f.read()
 
-            if path.endswith('/reload'):
-                mod = __import__(path.split('/')[-2])
-                reload(mod)
-                mime = 'text/plain'
-                res = 'success'
-            elif path.endswith('favicon.ico'):
+            if path.endswith('favicon.ico'):
                 mime = 'text/html'
                 res = ''
             elif path.endswith('.html'):
                 mime = 'text/html'
-                mod = path.split('.')[-2][1:]
-                modules[mod] =  __import__(mod)
                 res = read_file(path)
             elif path.endswith('.js'):
                 mime = 'text/javascript'
@@ -38,9 +42,8 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             else:
                 mime = 'application/json'
                 parts = path.split('/')
-                mod = modules[parts[1]]
                 path = '/'.join(parts[2:])
-                res = json.dumps(mod.get(path))
+                res = json.dumps(load(parts[1]).get(path))
         except:
             status = 500
             mime = 'text/plain'
