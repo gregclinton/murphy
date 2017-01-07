@@ -1,6 +1,9 @@
-// usage: <shortcut key="r" keypress="get('/optimize/reload')"></shortcut>
+// usage:
+// <shortcut key="enter" keypress="get('/optimize/next')"></shortcut>
+// <shortcut key="backspace" keypress="get('/optimize/prev')"></shortcut>
+// <shortcut key="p" keypress="get('/optimize/prev')"></shortcut>
 
-angular.module('main').directive('shortcut', ['$document', function ($document) {
+angular.module('shortcut').directive('shortcut', ['$document', function ($document) {
     return {
         restrict: 'E',
         replace: true,
