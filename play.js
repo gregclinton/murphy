@@ -12,7 +12,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
             function (res) {
-                Plotly.addTraces('chart', {y: res.data});
+                Plotly.addTraces('chart', { y: res.data, mode: 'lines' });
             }, error);
     };
 
