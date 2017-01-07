@@ -48,18 +48,12 @@ angular.module('main').directive('shortcut', ['$document', function ($document) 
         scope: true,
         link: function (scope, element, attrs) {
             function code(key) {
-                return key === 'enter' ? 13 : key === 'backspace' ? 8 : key.charCodeAt(0);
+                return key === 'enter' ? 13 : key.charCodeAt(0);
             }
             
             $document.bind('keypress', function (e) {
                 if (code(attrs.key) === e.which) {
                     scope.$apply(attrs.keypress);
-                }
-            });
-            
-            $document.bind('keydown', function (e) {
-                if (code(attrs.key) === e.which) {
-                    scope.$apply(attrs.keydown);
                 }
             });
         }
