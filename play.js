@@ -56,7 +56,7 @@ angular.module('main').directive('shortcut', ['$document', function ($document) 
             function code(key) {
                 return key === 'enter' ? 13 : key.charCodeAt(0);
             }
-            
+
             $document.bind('keypress', function (e) {
                 if (code(attrs.key) === e.which) {
                     scope.$apply(attrs.keypress);
