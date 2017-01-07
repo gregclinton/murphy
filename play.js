@@ -10,13 +10,13 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     }
 
     $scope.next = function () {
-        $http({ url: '/optimize/next' }).then(
+        $http({ url: 'optimize/next' }).then(
             function (res) {
                 alert(res.data)
             }, error);
     };
 
-    $http({ url: '/optimize/charts' }).then(
+    $http({ url: 'optimize/charts' }).then(
         function (res) {
             var layout = {xaxis: {}, yaxis: {}},
                 trace = {line: {}},
