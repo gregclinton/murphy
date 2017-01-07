@@ -2,7 +2,7 @@
 
 angular.module('main', ['chart']);
 
-angular.module('main').controller('optimize', ['$scope', '$http', function ($scope, $http) {
+angular.module('main').controller('main', ['$scope', '$http', function ($scope, $http) {
     $scope.charts = [];
 
     $http({ url: '/optimize/charts' }).then(
