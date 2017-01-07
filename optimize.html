@@ -1,17 +1,17 @@
 <!doctype html>
-<html ng-app="explore">
+<html ng-app="main">
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script src="explore.js"></script>
         <script src="optimize.js"></script>
+        <script src="chart.js"></script>
         <link href="explore.css" rel="stylesheet" />
         <title>optimize</title>
     </head>
 
-    <body ng-controller="explore">
+    <body ng-controller="optimize">
         <pre ng-if="error !== ''"> {{error}} </pre>
-        <div ng-controller="optimize">
+        <div>
             <chart
                 class="card"
                 ng-repeat="chart in charts track by chart.id"
