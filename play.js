@@ -38,10 +38,8 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             layout.margin = {t: 2, l: 1, r: 1, b: 2};
 
             trace.y = res.data;
-            trace.type = 'scatter';
             trace.mode = 'lines';
             trace.line.color = 'darkblue';
-            trace.line.width = 1.5;
 
             Plotly.plot('chart', [trace], layout, options);
         }, error);
