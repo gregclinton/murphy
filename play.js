@@ -4,6 +4,17 @@ angular.module('main', []);
 
 angular.module('main').controller('main', ['$scope', '$http', function ($scope, $http) {
     $scope.charts = [];
+    
+    function error(trace) {
+        $scope.error = trace;
+    }
+
+    $scope.next = function () {
+        $http({ url: '/optimize/next' }).then(
+            function (res) {
+                alert(res.data)
+            }, error);
+    };
 
     $http({ url: '/optimize/charts' }).then(
         function (res) {
@@ -33,12 +44,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             trace.line.width = 1.5;
 
             Plotly.plot('chart', [trace], layout, options);
-        },
-
-        function (trace) {
-            $scope.error = trace;
-        }
-    );
+        }, error);
 }]);
 
 angular.module('main').directive('shortcut', ['$document', function ($document) {
