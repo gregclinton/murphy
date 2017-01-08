@@ -3,7 +3,7 @@ from scipy import stats
 
 def get(path, params):
     if path == 'charts':
-        mvn = stats.multivariate_normal([80, 80], 20 * np.eye(2)).pdf
+        mvn = stats.multivariate_normal([80, 80], 240 * np.eye(2)).pdf
         x = y = list(np.linspace(60, 120, 101));
         z = [[mvn([xx, yy]) for yy in y] for xx in x]
         
