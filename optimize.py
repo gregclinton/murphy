@@ -1,4 +1,4 @@
-def get(path):
+def get(path, params):
     if path == 'charts':
         return [100, 150, 300]
     elif path == 'next':

@@ -41,9 +41,18 @@ class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 res = read_file(path)
             else:
                 mime = 'application/json'
+                parts = path.split('?')
+                path = parts[0]
+                params = {}
+
+                if len(parts) == 2:
+                    for p in parts[1].split('&'):
+                        k, v = p.split('=')
+                        params[k] = v
+
                 parts = path.split('/')
                 path = '/'.join(parts[2:])
-                res = json.dumps(load(parts[1]).get(path))
+                res = json.dumps(load(parts[1]).get(path, params))
         except:
             status = 500
             mime = 'text/plain'

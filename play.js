@@ -8,6 +8,13 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     function error(trace) {
         $scope.error = trace;
     }
+    
+    function contour() {
+        $http({ url: 'contour?x=55' }).then(
+            function (res) {
+                alert(res.data.z);
+            }, error);
+    }
 
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
@@ -43,6 +50,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             trace.line.color = 'darkblue';
 
             Plotly.plot('chart', [trace], layout, options);
+            contour()
         }, error);
 }]);
 
