@@ -10,7 +10,11 @@
     <body ng-controller="main">
         <pre ng-if="error"> {{error}} </pre>
         <div id="chart"/>
-        <shortcut key="enter" keypress="next();"></shortcut>
+        <span
+              ng-repeat="chart in charts track by chart.id"
+              data="chart">
+        </span>        
+        <shortcut key="enter" keypress="next();"></shortcut> 
     </body>
 
 </html>
