@@ -17,6 +17,25 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
         return {x: [x], y: [y], mode: 'markers', marker: { size: size, color: color } };
     }
 
+    function layout(width, height) {
+        layout = { xaxis: {}, yaxis: {} };
+        layout.width = width;
+        layout.height = height;
+        layout.showlegend = false;
+        layout.xaxis.showticklabels = false;
+        layout.xaxis.ticks = '';
+        layout.xaxis.autorange = true;
+        layout.xaxis.zeroline = false;
+        layout.xaxis.showgrid = false;
+        layout.yaxis.autorange = true;
+        layout.yaxis.showticklabels = false;
+        layout.yaxis.ticks = '';
+        layout.yaxis.zeroline = false;
+        layout.yaxis.showgrid = false;
+        layout.margin = {t: 2, l: 1, r: 1, b: 2};
+        return layout;
+    }
+
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
             function (res) {
@@ -27,37 +46,23 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
 
     $http({ url: 'optimize/charts' }).then(
         function (res) {
-            var layout = { xaxis: {}, yaxis: {} },
-                line = res.data.line,
-                trace = polyline(line.x, line.y, 'darkred'),
+            var traces = [],
                 contour = res.data.contour,
                 options = { displayModeBar: false, staticPlot: true };
 
-            layout.height = 180;
-            layout.width = 320;
-            layout.showlegend = false;
-            layout.xaxis.showticklabels = false;
-            layout.xaxis.ticks = '';
-            layout.xaxis.autorange = true;
-            layout.xaxis.zeroline = false;
-            layout.xaxis.showgrid = false;
-            layout.yaxis.autorange = true;
-            layout.yaxis.showticklabels = false;
-            layout.yaxis.ticks = '';
-            layout.yaxis.zeroline = false;
-            layout.yaxis.showgrid = false;
-            layout.margin = {t: 2, l: 1, r: 1, b: 2};
-            
             min = function (a) { return Math.min.apply(null, a); };
             max = function (a) { return Math.max.apply(null, a); };
             start = min(contour.z.map(min));
             end = max(contour.z.map(max));
-            
+
             contour.type = 'contour';
             contour.contours = { coloring: 'lines', start: start, end: end, size: (end - start) / 5.0 };
             contour.showscale = false;
 
-            Plotly.plot('chart', [contour, trace, dot(50, 50, 13, 'green')], layout, options);
+            traces.push(contour);
+            traces.push(dot(50, 50, 13, 'green'));
+
+            Plotly.plot('chart', traces, layout(320, 180), options);
         }, error);
 }]);
 
