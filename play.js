@@ -21,6 +21,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
         function (res) {
             var layout = { xaxis: {}, yaxis: {} },
                 trace = {},
+                contour = res.data.contour,
                 options = { displayModeBar: false, staticPlot: true };
 
             layout.height = 180;
@@ -38,10 +39,9 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             layout.yaxis.showgrid = false;
             layout.margin = {t: 2, l: 1, r: 1, b: 2};
             
-            contour = res.data.contour;
-            z = contour.z;
             min = function (a) { return Math.min.apply(null, a); };
             max = function (a) { return Math.max.apply(null, a); };
+            z = contour.z;
             start = min(z.map(min));
             end = max(z.map(max));
             
