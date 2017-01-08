@@ -8,13 +8,6 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     function error(trace) {
         $scope.error = trace;
     }
-    
-    function contour() {
-        $http({ url: 'contour?x=55' }).then(
-            function (res) {
-                alert(res.data.z);
-            }, error);
-    }
 
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
@@ -27,7 +20,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     $http({ url: 'optimize/charts' }).then(
         function (res) {
             var layout = { xaxis: {}, yaxis: {} },
-                trace = { line: {} },
+                trace = {},
                 options = { displayModeBar: false, staticPlot: true };
 
             layout.height = 180;
@@ -44,13 +37,18 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             layout.yaxis.zeroline = false;
             layout.yaxis.showgrid = false;
             layout.margin = {t: 2, l: 1, r: 1, b: 2};
+            
+            contour = res.data.contour;
+            contour.type = 'contour';
+            contour.contours = { coloring: 'lines' };
+            contour.showscale = false;
 
-            trace.y = res.data.line;
+            trace.x = res.data.line.x;
+            trace.y = res.data.line.y;
             trace.mode = 'lines';
-            trace.line.color = 'darkblue';
+            trace.line = { color: 'darkblue' };
 
-            Plotly.plot('chart', [trace], layout, options);
-            contour()
+            Plotly.plot('chart', [contour, trace], layout, options);
         }, error);
 }]);
 
