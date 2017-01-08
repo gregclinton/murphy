@@ -12,14 +12,15 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
             function (res) {
-                Plotly.addTraces('chart', { y: res.data, mode: 'lines' });
+                Plotly.deleteTraces('chart', 0);
+                Plotly.addTraces('chart', { y: res.data, mode: 'lines', line: {color: 'darkred'} });
             }, error);
     };
 
     $http({ url: 'optimize/charts' }).then(
         function (res) {
-            var layout = {xaxis: {}, yaxis: {}},
-                trace = {line: {}},
+            var layout = { xaxis: {}, yaxis: {} },
+                trace = { line: {} },
                 options = { displayModeBar: false, staticPlot: true };
 
             layout.height = 180;
