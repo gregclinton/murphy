@@ -39,8 +39,14 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             layout.margin = {t: 2, l: 1, r: 1, b: 2};
             
             contour = res.data.contour;
+            z = contour.z;
+            min = function (a) { return Math.min.apply(null, a); };
+            max = function (a) { return Math.max.apply(null, a); };
+            start = min(z.map(min));
+            end = max(z.map(max));
+            
             contour.type = 'contour';
-            contour.contours = { coloring: 'lines' };
+            contour.contours = { coloring: 'lines', start: start, end: end, size: (end - start) / 5.0 };
             contour.showscale = false;
 
             trace.x = res.data.line.x;
