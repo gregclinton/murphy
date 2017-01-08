@@ -45,7 +45,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             layout.yaxis.showgrid = false;
             layout.margin = {t: 2, l: 1, r: 1, b: 2};
 
-            trace.y = res.data;
+            trace.y = res.data.line;
             trace.mode = 'lines';
             trace.line.color = 'darkblue';
 
