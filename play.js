@@ -41,9 +41,8 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             
             min = function (a) { return Math.min.apply(null, a); };
             max = function (a) { return Math.max.apply(null, a); };
-            z = contour.z;
-            start = min(z.map(min));
-            end = max(z.map(max));
+            start = min(contour.z.map(min));
+            end = max(contour.z.map(max));
             
             contour.type = 'contour';
             contour.contours = { coloring: 'lines', start: start, end: end, size: (end - start) / 5.0 };
