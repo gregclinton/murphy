@@ -8,6 +8,14 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     function error(trace) {
         $scope.error = trace;
     }
+    
+    function polyline(x, y, color) {
+        return {x: x, y: y, mode: 'lines', line: { color: color } };
+    }
+
+    function dot(x, y, size, color) {
+        return {x: [x], y: [y], mode: 'markers', marker: { size: size, color: color } };
+    }
 
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
@@ -20,7 +28,8 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     $http({ url: 'optimize/charts' }).then(
         function (res) {
             var layout = { xaxis: {}, yaxis: {} },
-                trace = {},
+                line = res.data.line,
+                trace = polyline(line.x, line.y, 'darkred'),
                 contour = res.data.contour,
                 options = { displayModeBar: false, staticPlot: true };
 
@@ -48,12 +57,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             contour.contours = { coloring: 'lines', start: start, end: end, size: (end - start) / 5.0 };
             contour.showscale = false;
 
-            trace.x = res.data.line.x;
-            trace.y = res.data.line.y;
-            trace.mode = 'lines';
-            trace.line = { color: 'darkblue' };
-
-            Plotly.plot('chart', [contour, trace], layout, options);
+            Plotly.plot('chart', [contour, trace, dot(50, 50, 13, 'green')], layout, options);
         }, error);
 }]);
 
