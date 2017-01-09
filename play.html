@@ -13,7 +13,7 @@
         <div id="chart"></div>
         <chart
             ng-repeat="chart in charts track by chart.id"
-            style="display: inline-block"
+            style="display: inline-block; cursor: pointer;"
             ng-click="drill(chart.id)"   
             data="chart">
         </chart>        

@@ -38,6 +38,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     }
 
     $scope.drill = function(id) {
+        alert(id);
     };
 
     $scope.next = function () {
@@ -66,6 +67,14 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             traces.push(contour);
             traces.push(dot(50, 50, 13, 'green'));
             
+            $scope.charts = [
+                {data: traces, layout: layout(80, 50), id: 1},
+                {data: traces, layout: layout(80, 50), id: 2},
+                {data: traces, layout: layout(80, 50), id: 3},
+                {data: traces, layout: layout(80, 50), id: 4},
+                {data: traces, layout: layout(80, 50), id: 5}
+            ];
+                              
             Plotly.plot('chart', traces, layout(320, 180), options);
         }, error);
 }]);
