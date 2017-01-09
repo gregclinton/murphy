@@ -18,7 +18,8 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     }
 
     function layout(width, height) {
-        layout = { xaxis: {}, yaxis: {} };
+        var layout = { xaxis: {}, yaxis: {} };
+        
         layout.width = width;
         layout.height = height;
         layout.showlegend = false;
@@ -35,6 +36,9 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
         layout.margin = {t: 2, l: 1, r: 1, b: 2};
         return layout;
     }
+
+    $scope.drill = function(id) {
+    };
 
     $scope.next = function () {
         $http({ url: 'optimize/next' }).then(
@@ -61,9 +65,25 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
 
             traces.push(contour);
             traces.push(dot(50, 50, 13, 'green'));
-
+            
             Plotly.plot('chart', traces, layout(320, 180), options);
         }, error);
+}]);
+
+angular.module('main').directive('chart', [function () {
+    function link(scope, element, attribute) {
+        var json = scope.data,
+            options = { displayModeBar: false, staticPlot: true };
+        
+        Plotly.plot(element[0], json.data, json.layout, options);
+    }    
+    
+    return {
+        restrict: 'E',
+        scope: { data: '=' },
+        template: '<span style="outline: none; border: 0;"> </span>',
+        link: link
+    };
 }]);
 
 angular.module('main').directive('shortcut', ['$document', function ($document) {
