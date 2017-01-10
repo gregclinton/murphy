@@ -4,19 +4,12 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script src="play.js"></script>
-        <link href="play.css" rel="stylesheet" />        
         <title>play</title>
     </head>
 
     <body ng-controller="main">
         <pre ng-if="error"> {{error}} </pre>
         <div id="chart"></div>
-        <chart
-            ng-repeat="chart in charts track by chart.id"
-            style="display: inline-block; cursor: pointer;"
-            ng-click="drill(chart.id)"   
-            data="chart">
-        </chart>        
         <shortcut key="enter" keypress="next();"></shortcut> 
     </body>
 
