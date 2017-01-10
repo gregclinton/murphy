@@ -20,7 +20,7 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
     $http({ url: 'play/charts' }).then(
         function (res) {
             var traces = [],
-                layout = { xaxis: {}, yaxis: {} },
+                layout = { showlegend: false },
                 contour = res.data.contour,
                 options = { displayModeBar: false, staticPlot: true };
 
@@ -34,21 +34,6 @@ angular.module('main').controller('main', ['$scope', '$http', function ($scope, 
             contour.showscale = false;
 
             traces.push(contour);
-        
-            layout.width = 320;
-            layout.height = 180;
-            layout.showlegend = false;
-            layout.xaxis.showticklabels = false;
-            layout.xaxis.ticks = '';
-            layout.xaxis.autorange = true;
-            layout.xaxis.zeroline = false;
-            layout.xaxis.showgrid = false;
-            layout.yaxis.autorange = true;
-            layout.yaxis.showticklabels = false;
-            layout.yaxis.ticks = '';
-            layout.yaxis.zeroline = false;
-            layout.yaxis.showgrid = false;
-            layout.margin = {t: 2, l: 1, r: 1, b: 2};
                               
             Plotly.plot('chart', traces, layout, options);
         }, error);
